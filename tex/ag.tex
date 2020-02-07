@@ -1,0 +1,364 @@
+We have previously seen in Sections~\ref{sec:theo_permutation_groups}
+and~\ref{sec:theo_partial_permutation_inverse_monoids} how permutation groups
+and partial permutation inverse monoids can describe symmetries and partial
+symmetries of undirected graphs respectively. This implies that we can
+capture the (partial) symmetries inherent in abstract MPSoC architectures by first
+modelling them as undirected graphs and then determining the automorphism
+groups and the partial automorphism inverse monoids of these graphs, which
+we shall term \textit{architecture graphs}.
+
+In this chapter we will first formally define architecture graphs in
+Section\ref{sec:ag_definition}. In
+Section\ref{sec:ag_determining_automorphisms} we will then examine how we can
+determine a generating set for the automorphism group of an architecture
+graph and in Section\ref{sec:ag_automorphism_decomposition} we demonstrate how
+we can decompose the automorphism groups of certain \textit{separable} and
+\textit{hierarchical} architecture graphs into direct and wreath products
+respectively. Finally, in
+Section\ref{sec:ag_determining_partial_automorphisms} we describe a simple but
+inefficient algorithm for finding a generating set for the partial automorphism
+inverse monoid of an architecture graph.
+
+\section{Definition}
+\label{sec:ag_definition}
+
+Transforming abstract MPSoC architectures into undirected graphs is easy: We
+introduce a vertex for every processing element and an edge for every
+communication channel. It should now be apparent why we have only considered
+undirected graphs so far: MPSoC communication channels are usually
+bi-directional\footnote{But note that this need not be true in general, we can
+imagine e.g. one-directional FIFO channels between processing elements or
+shared memory that can be read by multiple processing elements but only be
+written to by a subset of them.  Nevertheless we will continue assuming that
+all communication channels are bi-directional to keep notation simple. The
+following discussion is trivially extensible to directed architecture graphs.}.
+In addition, we need to take into account the fact that processing elements and
+communication channels might be heterogeneous. Thus we introduce
+\textit{vertex} and \textit{edge colors} which assign identical processing
+elements and communication channels the same unique color (where we simply
+represent colors by positive integers). More formally we define an
+architecture graph as follows:
+
+\begin{defn}{Architecture Graph}
+  An architecture graph $A$ is a four-tuple $(P, C, \operatorname{col}_P,
+  \operatorname{col}_C)$ where:
+  %
+  \begin{itemize}
+    \item $P$ is a set of vertex indices of the form $\{1, 2, \dots, n \mid n
+          \in \mathbb{N}_+\}$.
+    \item $C = \{\{i, j\} \mid i \leq j \land$ an edge exists
+                 between $i$ and $j$, $i, j \in P\}$\footnote{Note that $C$ is a
+                 multiset.}.
+    \item $\operatorname{col}_P: P \rightarrow \mathbb{N}_+$ maps every $p \in
+          P$ to some color.
+    \item $\operatorname{col}_C: C \rightarrow \mathbb{N}_+$ maps every $c \in C$
+          to some color.
+  \end{itemize}
+\end{defn}
+
+\begin{exmp}[label=exmp:arch_graph]{Architecture Graph}
+  Consider the abstract MPSoC architecture presented in
+  Figure~\ref{fig:tcol_simple_arch}. Take note of the fact that unlike
+  before we are now dealing with an MPSoC architecture with two types of
+  processing elements and communication channels respectively.  The different
+  processor types are indicated by different shades of gray and the communication
+  channels arise from L1 caches shared between processing elements of the same
+  type and an L2 cache shared by all processing elements. If we omit any loops
+  for the sake of simplicity, the corresponding architecture graph can described
+  as follows, see Figure~\ref{fig:tcol_simple_arch_graph} for a graphical
+  representation:
+  %
+  \begin{itemize}
+    \item $P = \{1,2,3,4\}$
+    \item $C = \{\{1,2\},\{1,2\},\{1,3\},\{1,4\},\{2,3\},\{2,4\},\{3,4\},\{3,4\}\}$
+    \item $\operatorname{col}_P(1) = 1,\ \operatorname{col}_P(2) = 1,
+           \operatorname{col}_P(3) = 2,\ \operatorname{col}_P(4) = 2$
+    \item $\operatorname{col}_C(\{1,2\}) = 1,\ \operatorname{col}_C(\{3,4\}) = 1,\ 
+           \operatorname{col}_C(\{1,2\}) = 2,\ \operatorname{col}_C(\{1,3\}) = 2,\\
+           \operatorname{col}_C(\{1,4\}) = 2,\ \operatorname{col}_C(\{2,3\}) = 2,\ 
+           \operatorname{col}_C(\{2,4\}) = 2,\ \operatorname{col}_C(\{3,4\}) = 2$
+  \end{itemize}
+  %
+  \begin{figure}[H]
+    \centering
+    \begin{subfigure}{.55\textwidth}
+      \centering
+      \includegraphics[width=.8\textwidth]{resources/pdf/simple_arch.pdf}
+      \caption{}
+      \label{fig:tcol_simple_arch}
+    \end{subfigure}
+    %
+    \hspace{1cm}
+    %
+    \begin{subfigure}{.3\textwidth}
+      \centering
+      \begin{tikzpicture}
+        % vertices
+        \Vertex[x=0,y=0,L=$1$]{1}
+        \Vertex[x=2,y=0,L=$2$]{2}
+        {\renewcommand{\VertexLightFillColor}{LightGray}
+         \Vertex[x=2,y=-2,L=$3$]{3}
+         \Vertex[x=0,y=-2,L=$4$]{4}}
+        % L2 edges
+        \Edge[label=L2,labelcolor=tcolorboxGray](1)(2)
+        \Edge[label=L2,labelcolor=tcolorboxGray](1)(3)
+        \Edge[label=L2,labelcolor=tcolorboxGray](1)(4)
+        \Edge[label=L2,labelcolor=tcolorboxGray](2)(3)
+        \Edge[label=L2,labelcolor=tcolorboxGray](2)(4)
+        \Edge[label=L2,labelcolor=tcolorboxGray](3)(4)
+        % L1 edges
+        \tikzstyle{EdgeStyle}=[bend angle=45, bend left]
+        \Edge[label=L1,labelcolor=tcolorboxGray](1)(2)
+        \Edge[label=L1,labelcolor=tcolorboxGray](3)(4)
+      \end{tikzpicture}
+      \caption{}
+      \label{fig:tcol_simple_arch_graph}
+    \end{subfigure}
+    \caption{From Abstract MPSoC architecture to automorphism graph.}
+  \end{figure}
+\end{exmp}
+
+\section{Determining Automorphisms}
+\label{sec:ag_determining_automorphisms}
+
+Finding a generating set for the automorphism group of a graph is a
+well-studied problem in graph theory for which there exist efficient
+algorithms. The program \textit{nauty/Traces}~\cite{nauty} is able to determine
+such generating sets for vertex colored graphs. Since automorphism graphs can
+be totally colored we furthermore need to be able to transform any
+totally colored graph into a vertex colored graph with the same automorphism
+group, which is possible via the following therom:
+
+\begin{thm}{Reducing Totally Colored Architecture Graphs}
+  Given a totally colored architecture graph $A = (P, C, \operatorname{col}_P,
+  \operatorname{col}_C)$ and letting
+  %
+  \begin{align*}
+    |\operatorname{col}_P| &= \text{the number of distinct vertex colors of A} \\
+    |\operatorname{col}_C| &= \text{the number of distinct edge colors of A}
+  \end{align*}
+  %
+  and
+  %
+  \begin{align*}
+    \operatorname{p}&: P' \rightarrow P,\ p \mapsto ((p - 1) \bmod |P|) + 1 \\
+    \operatorname{lvl}&: P' \rightarrow P,\ p \mapsto \floor*{\frac{p - 1}{|P|}} \\
+    \operatorname{bd}_i&: \mathbb{N}_+ \rightarrow \{0,1\},\
+    n \mapsto \text{the ith digit of the binary representation of } n
+  \end{align*}
+  %
+  we construct a vertex colored architecture graph $A' = (P', C',
+  \operatorname{col}_P', \operatorname{col}_C')$ as follows:
+  %
+  \begin{itemize}
+    \item $P' = \{1, 2, \dots, |P| \cdot (\floor*{\log_2(|\operatorname{col}_C|)} + 1)\}$
+    \item
+      $\begin{aligned}
+        C' =\ &\{\{i, j\} \mid j = i + |P|,\ i, j \in P'\} \\
+        \cup\ &\{\{i, j\} \mid
+          l = \operatorname{lvl}(i) = \operatorname{lvl}(j)
+            \land
+          \{\operatorname{p}(i), \operatorname{p}(j)\} \in C
+            \land
+          \operatorname{bd}_l(\operatorname{col}_C(\{i,j\})) = 1,\ i, j \in P'\}
+      \end{aligned}$
+    \item $\forall p \in P': \operatorname{col}_P'(p) =
+      \operatorname{col}_P(p) + |\operatorname{col}_P| \cdot \operatorname{lvl}(p)$
+    \item $\forall c \in C': \operatorname{col}_C'(c) = 1$
+  \end{itemize}
+  %
+  $A$ and $A'$ then have the same automorphism group, a proof of which is beyond
+  the scope of this thesis.
+\end{thm}
+
+\begin{exmp}{Reducing Totally Colored Architecture Graphs}
+  Consider again the totally colored architecture graph presented in
+  Example~\ref{exmp:arch_graph}. A vertex colored architecture graph with
+  the same automorphism group can be described as follows, see
+  Figure~\ref{fig:simple_arch_graph_vcol} for a graphical representation:
+  %
+  \begin{itemize}
+    \item $P' = \{1,2,3,4,5,6,7,8\}$
+    \item $C' = \{\{1,2\},\{3,4\},\{1,5\},\{2,6\},\{3,7\},\{4,8\},\{5,6\},
+                  \{5,7\},\{5,8\},\{6,7\},\{6,8\},\{7,8\}\}$
+    \item $\operatorname{col}'_P(1) = 1,\ \operatorname{col}'_P(2) = 1,\ 
+           \operatorname{col}'_P(3) = 2,\ \operatorname{col}'_P(4) = 2,\\
+           \operatorname{col}'_P(5) = 3,\ \operatorname{col}'_P(6) = 3,\ 
+           \operatorname{col}'_P(7) = 4,\ \operatorname{col}'_P(8) = 4$
+    \item $\forall c \in C: \operatorname{col}'_C(c) = 1$
+  \end{itemize}
+  %
+  \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+      % vertices
+      \Vertex[x=0,y=-1.5,L=$1$]{1}
+      \Vertex[x=1.5,y=-1.5,L=$2$]{2}
+      {\renewcommand{\VertexLightFillColor}{LightGray}
+        \Vertex[x=3,y=-1.5,L=$3$]{3}
+        \Vertex[x=4.5,y=-1.5,L=$4$]{4}}
+      {\renewcommand{\VertexLightFillColor}{MediumGray}
+        \Vertex[x=0,y=0, L=$5$]{5}
+        \Vertex[x=1.5,y=0, L=$6$]{6}}
+      {\renewcommand{\VertexLightFillColor}{DarkGray}
+        \Vertex[x=3,y=0, L=$7$]{7}
+        \Vertex[x=4.5,y=0, L=$8$]{8}}
+      % straight edges
+      \Edge(1)(5)
+      \Edge(2)(6)
+      \Edge(3)(7)
+      \Edge(4)(8)
+      % bent edges
+      \tikzstyle{EdgeStyle}=[bend right]
+      \Edge(1)(2)
+      \Edge(3)(4)
+      %
+      \tikzstyle{EdgeStyle}=[bend left]
+      \Edge(5)(6)
+      \Edge(5)(7)
+      \Edge(5)(8)
+      \Edge(6)(7)
+      \Edge(6)(8)
+      \Edge(7)(8)
+    \end{tikzpicture}
+    \caption{Vertex colored automorphism graph.}
+    \label{fig:simple_arch_graph_vcol}
+  \end{figure}
+\end{exmp}
+%
+Thus we can construct the automorphism group of any architecture graph by first
+transforming the graph into an isomorphic vertex colored graph, finding a
+generating set for its automorphism group using nauty and then a corresponding
+BSGS using the algorithms presented in Chapter~\ref{chap:bsgs}.
+
+\section{Automorphism Decomposition}
+\label{sec:ag_automorphism_decomposition}
+
+The architecture graphs we are dealing with in practice are based on real world
+abstract MPSoC architectures. Many of these are either \textit{separable} or
+\textit{hierarchical} in nature, properties that we, as it turns out, can use
+to decompose the autmorphism groups of the corresponding architecture graphs
+into direct and wreath products which we introduced in
+Section\ref{sec:pg_direct_and_wreath_product}. This is not just an
+interesting observation but can also help us solve the task mapping problem
+more efficiently for these types of architecture graphs as discussed in
+Section\ref{sec:tmor_optimization_via_decomposition}.
+
+Separable architecture graphs are all those made up of ``islands'' of
+processing elements for which no automorphism maps from one island to another.
+This occurs e.g. for abstract MPSoC architectures with several distinct
+processor types. Consider e.g. the \textit{Exynos} architecture shown in
+Figure~\ref{fig:exynos}. Its automorphism group $G_{\mathrm{Exynos}}$
+is the direct product of the automorphism groups of the subgraphs created by
+restricting that architecture graph to one of the two processor types, i.e.:
+
+\begin{align*}
+  G_{\mathrm{Exynos}} &=
+      \left<\{(1\ 2), (2\ 3), (2\ 4), (3\ 4)\}\right>
+        \times
+      \left<\{(5\ 6), (6\ 7), (6\ 8), (7\ 8)\}\right> \\
+    &= \left<\{1\ 2), (2\ 3), (2\ 4), (3\ 4), (5\ 6), (6\ 7), (6\ 8), (7\ 8)\}\right>
+\end{align*}
+%
+Hierarchical architecture graphs on the other hand arise from abstract
+architecture graphs that are made up of interconnected identical ``clusters''
+of processing elements. Consider e.g. the \textit{HAEC} architecture shown in
+Figure~\ref{fig:haec}. We can model the corresponding architecture graph as a
+hypergraph according to Definition~\ref{defn:hypergraph}. Its automorphism
+group $G_{\mathrm{HAEC}}$ is then the wreath product of one clusters automorphism group and the
+autormophism group of the ``cluster graph'' itself, i.e.:
+
+\begin{align*}
+  &\begin{aligned}
+    \mathllap{G_{\mathrm{HAEC,proto}}} =
+      \langle\{&(1, 4)(2, 3)(5, 8)(6, 7)(9, 12)(10, 11)(13, 16)(14, 15), \\
+               &(2, 5)(3, 9)(4, 13)(7, 10)(8, 14)(12, 15)\}\rangle
+    \end{aligned} \\
+  &\mathllap{G_{\mathrm{HAEC,super}}} = \left<\{(1\ 4)(2\ 3)\}\right> \\
+\end{align*}
+%
+and:
+%
+\begin{equation*}
+  G_{\mathrm{HAEC}} = G_{\mathrm{HAEC,proto}} \wr G_{\mathrm{HAEC,super}}
+\end{equation*}
+%
+We can either manually specify whether a given architecture graph is separable
+or hierarchical or automatically detect this property by using the algorithms
+presented in~\cite{Donaldson} which are able to deterministically discover
+possible direct and wreath product decompositions for any given permutation
+group. These algorithms are implemented in \texttt{mpsym} but their inner
+working is beyond the scope of this thesis.
+
+\section{Determining Partial Automorphisms}
+\label{sec:ag_determining_partial_automorphisms}
+
+Unfortunately, there seems to be no existing research on efficient algorithms
+for determining a generating set for a graphs partial automorphism inverse
+monoid.
+
+Determining whether a given partial permutation is a partial automorphism of an
+architecture graph is trivial. However, the total number of possible partial
+permutations of $\{1, \dots, |P|\}$ is $\sum_{i=0}^{|P|} \frac{|P|!}{(|P| -
+i)!} = \left(\sum_{i=0}^{|P|} \frac{1}{i!}\right) (|P| + 1)! \approx e \cdot
+(|P| + 1)!$ and thus generally very large. To avoid searching through all of
+them to find a suitable generating set we can make use of the fact that if a
+partial permutation is not contained in a partial permutation inverse monoid
+then neither are any of its \textit{extensions} (or their extensions and so
+on), where we define extensions as follows:
+
+\begin{defn}{Extensions of a Partial Permutation}
+  Given a partial permutation $s$ of a set $\Omega$, an extension of $s$ is
+  another partial permutation $t$ with $\operatorname{dom}(t) =
+  \operatorname{dom}(s) \cup \{x \mid x \notin \operatorname{dom}(s), x \in
+  \Omega\}$ and $\operatorname{im}(t) = \operatorname{im}(s) \cup \{x \mid x
+  \notin \operatorname{im}(s), x \in \Omega\}$. We refer to all extensions of $s$
+  (of which there are $|\operatorname{dom}(s)|^2$) by $\operatorname{ext}(s)$ and
+  to the set resulting from a recursive application of $\operatorname{ext}$ as
+  $\operatorname{ext}^*(s)$.
+\end{defn}
+
+\begin{exmp}{Extensions of a Partial Permutation}
+  Let $\Omega = \Omega_4$ and $s = (1, 2)$, i.e. $\operatorname{dom}(s) =
+  \operatorname{im}(s) = \{1,2\}$, then $\operatorname{ext}(s) = \{(1, 2)(3),
+  (1, 2)(4), (1, 2)[3, 4], (1, 2)[4, 3]\}$.
+\end{exmp}
+%
+So formally, it holds that if $s$ is not a partial automorphism of an
+architecture graph then neither are any of the partial permutations in
+$\operatorname{ext}^*(s)$.
+
+Algorithm~\ref{alg:partial_autom_generators} is based on this. If we invoke
+this recursive algorithm with $s = 0$ and $M$ initially only containing $0$ and
+$1_{\{1,\dots,|P|\}}$, then the algorithm will traverse a search tree of all
+possible partial permutations $s$ of $\{1, \dots, |P|\}$ in depth first
+fashion and adjoin any $s \notin M$ that is a partial automorphism of the
+architecture graph $A$ to $M$\footnote{This of course assumes that we can
+efficiently modify our representation of $M$ in a suitable way such as to adjoin
+$s$ to $M$, refer to~\cite{Mitchell} to see that this is indeed possible.}.
+Because the nodes of any subtree of this search tree with root $s$ are exactly
+$\operatorname{ext}^*(s)$, we can completely prune such a subtree if $s$ is not
+a partial automorphism of $A$.
+
+\begin{algorithm}
+  \caption{Find partial automorphism inverse monoid generating set}
+  \label{alg:partial_autom_generators}
+  \begin{algorithmic}[1]
+  \Procedure{PARTIAL\_AUTOM\_GENERATORS}{$A$, $s$, $M$}
+    \If{$s$ is a partial automorphism of $A$}
+      \State Adjoin $s$ to $M$
+    \Else
+      \State \textbf{return}
+    \EndIf
+    \\
+    \For{Every extension $s'$ of $s$}
+        \State PARTIAL\_AUTOM\_GENERATORS($A$, $s'$, $M$)
+    \EndFor
+  \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Unfortunately, preliminary experiments have shown that in practice,
+Algorithm~\ref{alg:partial_autom_generators} is too slow for all but the
+smallest architecture graphs. Developing a more efficient algorithm could be
+the subject of further research.

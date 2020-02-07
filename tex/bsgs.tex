@@ -1,0 +1,273 @@
+We will now discuss how to efficiently obtain a BSGS for any permutation group
+$G$ given a generating set for $G$. This topic is vast and many variants of the
+algorithms presented here, utilizing different optimizations and trade-offs, as
+well as additional BSGS construction algorithms like the \textit{Solvable BSGS
+Algorithm} have been published in the computational group theory literature.
+Refer to e.g.~\cite{Holt}, Chapter 4 and 6 for a deeper treatment.
+
+As a preliminary matter, in
+Section~\ref{sec:bsgs_representing_basic_orbits_and_transversals} we will see
+how to construct the basic orbits $\Delta^{(i)}$ and transversals $U^{(i)}$
+from $\beta_i$ and $S^{(i)}$.
+%
+In Section~\ref{sec:bsgs_the_deterministic_schreier_sims_algorithm} we will
+then present the first BSGS construction algorithm, the \textit{Deterministic
+Schreier-Sims Algorithm}.
+%
+Finally, in Section~\ref{sec:bsgs_the_random_schreier_sims_algorithm} we
+present an alternative Monte Carlo BSGS construction algorithm, the
+\textit{Random Schreier-Sims Algorithm}.
+
+\section{Representing Basic Orbits and Transversals}
+\label{sec:bsgs_representing_basic_orbits_and_transversals}
+
+Since basic orbits are simply unordered sets of elements of $\Omega$, we can
+represent them using hash tables and then perform orbit membership tests
+in $O(1)$ time (on average). We can obtain $\Delta^{(i)}$ from $\beta_i$ and
+$S^{(i)}$ via Algorithm~\ref{alg:basic_orbit} which is a simple fixed-point
+algorithm.
+
+\begin{algorithm}
+  \caption{Determine basic orbit.}
+  \label{alg:basic_orbit}
+  \begin{algorithmic}[1]
+    \Procedure{BASIC\_ORBIT}{$\beta_i,S^{(i)}$}
+       \State $\Delta^{(i)} \gets \{\beta_i\}$
+       \\
+       \While{$\Delta^{(i)}$ is changing}
+         \For{$x \in \Delta^{(i)}$, $g \in S^{(i)}$}
+            \State $\Delta^{(i)} \gets \Delta^{(i)} \cup \{g(x)\}$
+         \EndFor
+       \EndWhile
+       \\
+       \State \textbf{return} $\Delta^{(i)}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+While it is possible to similarly store all $u_x^{(i)} \in U^{(i)}$ explicitly,
+this can be impractical for groups of large degree because $|U^{(i)}| =
+|\Delta^{(i)}|$ can be as large as $|\Omega|$. A possible workaround is storing
+$U^{(i)}$ as a tree structure from which we can reconstruct the $u_x^{(i)}$ on
+demand. These tree structures are commonly implemented as \textit{(Shallow)
+Schreier Vectors}, refer to e.g.~\cite{Holt} Chapter 4.
+
+Since for the purpose of this thesis we can assume that $|\Omega| = |\Omega_n|$
+is of manageable size\footnote{Because MPSoCs generally do not contain thousands of
+processing elements, let alone millions.}, we will not consider Schreier Vectors
+in detail and instead simply present
+Algorithm~\ref{alg:basic_orbit_and_transversal}, a modified version of
+Algorithm~\ref{alg:basic_orbit} that determines $U^{(i)}$ in addition to
+$\Delta^{(i)}$. The necessary modifications should be self-explanatory.
+
+\begin{algorithm}
+  \caption{Determine basic orbit and transversal.}
+  \label{alg:basic_orbit_and_transversal}
+  \begin{algorithmic}[1]
+    \Procedure{BASIC\_ORBIT\_AND\_TRANSVERSAL}{$\beta_i,S^{(i)}$}
+       \State $\Delta^{(i)} \gets \{\beta_i\}$
+       \State $u_{\beta_i} \gets 1$
+       \\
+       \While{$\Delta^{(i)}$ is changing}
+         \For{$x \in \Delta^{(i)}$, $g \in S^{(i)}$}
+            \If{$g(x) \notin \Delta^{(i)}$}
+              \State $\Delta^{(i)} \gets \Delta^{(i)} \cup \{g(x)\}$
+              \State $u_{g(x)}^{(i)} \gets u_x^{(i)} g$
+            \EndIf
+         \EndFor
+       \EndWhile
+       \\
+       \State $U^{(i)} \gets \{u_x^{(i)} \mid x \in \Delta^{(i)}\}$
+       \\
+       \State \textbf{return} $\Delta^{(i)}$, $U^{(i)}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\section{The Deterministic Schreier-Sims Algorithm}
+\label{sec:bsgs_the_deterministic_schreier_sims_algorithm}
+
+Let's now turn our attention to a general deterministic algorithm which returns
+a BSGS for any permutation group given a generating set for that group. This
+algorithm is commonly refered to as the \textit{Schreier-Sims Algorithm}. Here
+we will refer to it as the \textit{Deterministic Schreier-Sims Algorithm} to
+differentiate it from the \textit{Random Schreier-Sims Algorithm} introduced in
+Section~\ref{sec:bsgs_the_random_schreier_sims_algorithm}.
+
+\begin{algorithm}
+  \caption{Strip}
+  \label{alg:strip}
+  \begin{algorithmic}[1]
+    \Procedure{STRIP}{$g,(B, S, \Delta, U)$}
+       \State $g' \gets g$
+       \\
+       \For{$i = 1, 2, \dots, k$}
+          \If{$g'(\beta_i) \notin \Delta^{(i)}$}
+            \State \textbf{return} $g$, $i$
+          \EndIf
+          \\
+          \State Find $u_i \in U^{(i)}$ such that $u_i(\beta_i) = g'(\beta_i)$
+          \\
+          \State $g' \gets g' u_i^{-1}$
+       \EndFor
+       \\
+       \State \textbf{return} $g$, $k + 1$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+The Deterministic Schreier-Sims Algorithm makes use of
+Algorithm~\ref{alg:strip}, a slightly modified version of
+Algorithm~\ref{alg:is_member} which returns both $g'$ and the loop index $i$.
+Importantly, since in every iteration we ``strip'' $u_i$ from $g'$ by
+multiplying it with $u_i^{-1}$, at the start of a given iteration $i$ we know
+that the returned $g'$ is of the form $g' = u_k u_{k-1} \cdots u_i$ and thus
+stabilizes $\beta_1, \dots, \beta_{i-1}$.
+
+\begin{algorithm}
+  \caption{The Deterministic Schreier-Sims Algorithm}
+  \label{alg:schreier_sims_deterministic}
+  \begin{algorithmic}[1]
+  \Procedure{SCHREIER\_SIMS\_DETERMINISTIC}{$B, S$}
+    \LineComment{$B$ initially is an empty base.}
+    \LineComment{$S$ initially is any generating set for $G$.}
+    \\
+    \State Append elements $x \in \Omega$ to $B$ until no $g \in G$ stabilizes $B$
+    \\
+    \For{$1 \leq i \leq k$}
+      \State $S^{(i)} = S \cap G_{\beta_1, \beta_2, \dots, \beta_{i-1}}$
+      \State $\Delta^{(i)}, U^{(i)} = \text{BASIC\_ORBIT\_AND\_TRANSVERSAL}(
+        \beta_i, S^{(i)})$
+    \EndFor
+    \\
+    \State{$i \gets 1$}
+    \While{$i \geq 1$}
+\State \unskip $\mathrm{next:}$
+      \For{every generator $g$ of $G^{(i)}_{\beta_i}$}
+        \State $g', j \gets \operatorname{STRIP}(g)$
+        \\
+        \If{$g' = 1$}
+          \State \textbf{continue}
+        \EndIf
+        \\
+        \If{$j = k + 1$}
+          \State Append an $x \in \Omega$ with $g'(x) \ne x$ to $B$
+          \State $S^{(k)} \gets \{\}$
+        \EndIf
+        \\
+        \For{$l = i + 1, \dots, j$}
+          \State $S^{(l)} \gets S^{(l)} \cup \{g'\}$
+          \State $\Delta^{(l)}, U^{(l)} = \text{BASIC\_ORBIT\_AND\_TRANSVERSAL}(
+            \beta_l, S^{(l)})$
+        \EndFor
+        \\
+        \State $i \gets j$
+        \State \textbf{goto} $\mathrm{next}$
+      \EndFor
+      \\
+      \State $i \gets i - 1$
+    \EndWhile
+    \\
+    \State \textbf{return} $(B,S,\Delta,U)$
+  \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:schreier_sims_deterministic} is a high-level
+description of the Deterministic Schreier-Sims Algorithm. It is based on a
+simple observation: Referring back to Definition~\ref{defn:bsgs} it is easy to
+see that for a valid BSGS with base of length $k$ for some permutation group
+$G$ it holds that $G^{(k+1)} = 1$ and $G^{(i)}_{\beta_i} = G^{(i+1)}$ because
+both $G^{(i)}$ and $G^{(i+1)}$ stabilize $\beta_1, \beta_2, \dots, \beta_{i-1}$
+and $G^{(i+1)}$ additionally stabilizes $\beta_i$.
+
+The Deterministic Schreier-Sims algorithm exploits this property as follows:
+%
+We start by extending an initially empty base $B$ until no $g \in G$ stabilizes
+every $\beta \in B$, such that we have $G^{(k+1)} = 1$ (line 3) and then
+initialize the basic stabilizer generating sets $S^{(i)}$ as well as the basic
+orbits $\Delta^{(i)}$ and transversals $U^{(i)}$ (lines 5--8).
+
+We then assure that $G^{(i)}_{\beta_i} = G^{(i + 1)}$ for $i = k, k-1, \dots,
+1$. It is easy to see that $G^{(i + 1)} \leq G^{(i)}_{\beta_i}$ always holds
+and so the problem reduces to assuring that $G^{(i)}_{\beta_i} \leq G^{(i +
+1)}$.
+%
+Assuming for a moment that we know a generating set for $G^{(i)}_{\beta_i}$, we
+can accomplish this by iterating over this generating set and adjoining any
+generator $g$ that is not already an element of $G^{(i + 1)}$ to $S^{(i + 1)}$.
+In fact, given $g', j = \mathrm{STRIP}(g)$ it suffices to adjoin $g'$ because
+we can represent $g$ as $g$ = $g' u_{j-1} \cdots u_1$ where $u_{j-1}, \dots,
+u_1$ are already elements of $U_{j-1}, \dots, U_1$ (lines 14--18).
+%
+Finding the generators of $G^{(i)}_{\beta_i}$ is possible by making use of
+\textit{Schreier's Subgroup Lemma}, refer to~\cite{Holt} Chapter 4.
+
+This process is complicated by the fact that in a certain iteration $i$ we need
+to adjoin $g'$ not only to $S^{(i + 1)}$ but to $S^{(i + 1)}, \dots, S^{(j)}$
+(lines 25--28) and then reset $i$ to $j$ because $G^{(j)}_{\beta_j} \leq G^{(j +
+1)}$ might not hold anymore (lines 29--30).
+%
+If $j = k + 1$ then $g'$ stabilizes all $\beta \in B$ and thus we also need to
+adjoin an additional base point not stabilized by $g'$ to $B$ such that $G^{(k
++ 1)} = 1$ remains true (lines 20--23).
+
+For a permutation group $G$ acting on $\Omega_n$, the time complexity of the
+Deterministic Schreier-Sims is polynomial in $n$. For an overview of the time
+complexity of several variants of this algorithm refer to~\cite{Butler}
+Chapter 14.
+
+\section{The Random Schreier-Sims Algorithm}
+\label{sec:bsgs_the_random_schreier_sims_algorithm}
+
+While the Deterministic Schreier-Sims Algorithm is guaranteed to terminate and
+produce a correct BSGS for every possible generating set it can be slow in
+practice. With the Random Schreier-Sims Algorithm there exists a very fast
+Monte Carlo algorithm with which we can potentially find a BSGS quickly,
+even for groups of large degree, the drawback being that this BSGS is not
+guaranteed to be valid.
+
+Despite its name, the Random Schreier-Sims algorithm is not based on Schreier's
+Subgroup Lemma at all but rather on the following observations:
+
+\begin{itemize}
+  \item It is possible to efficiently and uniformly sample elements from a
+        permutation group without the need to construct a BSGS first, refer
+        to~\cite{Holt} Chapter 3.
+
+  \item Given some $g \in G$, it can be shown that Algorithm~\ref{alg:strip}
+        returns a permutation $g' = 1$ with probability
+        $< 1/2$ if $(B,S)$ is not a valid BSGS for $G$.
+\end{itemize}
+
+\noindent
+Thus, given a BSGS $(B,S)$, if we randomly generate some $g \in G$ $w \in
+\mathbb{N}_+$ times and $\mathrm{STRIP}(g, (B,S))$ returns the identity for all
+of them, we know that $(B,S)$ is a BSGS for $G$ with probability $p \ge 1 -
+2^{-w}$.
+
+The Random Schreier-Sims Algorithm starts by initializing a BSGS as in
+Algorithm~\ref{alg:schreier_sims_deterministic} (lines 3--8).  We then keep
+generating random $g \in G$ and determine $g', j = \mathrm{STRIP}(g, (B,S))$.
+If $g' \ne 1$ we extend our BSGS as in
+Algorithm~\ref{alg:schreier_sims_deterministic}  (lines 20--28, with $i$ always
+equal to 1). If $g' = 1$ $w$ consecutive times, we stop.  In certain cases we
+also know $|G|$ ahead of time, e.g. when $G$ is a wreath product, such that we
+can keep extending the BSGS until $|U^{(k)}| \cdot |U^{(k-1)}| \cdots |U^{(1)}|
+= |G|$.
+
+For reasonably large $w$ we can be very sure that the resulting BSGS is a valid
+BSGS for $G$. If we want to be \textit{absolutely} sure that this is the case
+we can:
+
+\begin{itemize}
+  \item Run the Deterministic Schreier-Sims Algorithm on the resulting BSGS.
+  \item Use the Todd-Coxeter-Schreier-Sims or the Sims ``Verify'' Algorithm
+        to correct the resulting BSGS. While this can be much faster for groups of
+        large degree, these algorithms are beyond the scope of this
+        thesis, refer to~\cite{Holt} Chapter 6.
+\end{itemize}
+
+\noindent
+For a complete pseudocode description of the Random Schreier-Sims Algorithm refer
+to e.g.~\cite{Holt} Chapter 4.

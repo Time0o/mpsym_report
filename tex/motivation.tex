@@ -1,0 +1,134 @@
+\section{Problem Statement}
+\label{sec:mot_problem_statement}
+
+An MPSoC is a circuit that integrates several electronic components required to
+form a full-fledged computing system, i.e. multiple, often heterogeneous,
+processing elements as well as memory and I/O components. MPSoCs are often found in
+embedded applications in domains like multimedia or telecommunication where
+their specific makeup can meet specialized demands like high throughput, low
+energy consumption or adaptability thereof.
+
+An important problem pertaining to MPSoC is that of intelligently mapping (i.e.
+assigning) computational tasks to processing elements, often at runtime.  These
+computational tasks can be both independent or interoperating programs with
+potentially very different hardware requirements.
+
+\begin{figure}
+  \centering
+    \includegraphics[width=.5\textwidth]{resources/pdf/regular_mesh_m_n.pdf}
+  \caption{$m \times n$ regular mesh abstract MPSoC architecture.}
+  \label{fig:regular_mesh_m_n}
+\end{figure}
+
+To clarify, consider the abstract MPSoC architecture presented in
+Figure~\ref{fig:regular_mesh_m_n}, a cluster of processing elements, connected
+in a regular mesh fashion by a number of communication channels. A processing
+element could for example represent a single core of some CPU while a
+communication channel might be a wired or wireless connection or shared memory.
+For now we assume that all processing elements and communication channels are
+effectively identical.
+
+Imagine that we have $k$ distinct computational tasks that we would like to run
+on this architecture concurrently\footnote{I.e. not necessarily in parallel.}.
+For simplicity we will assume that each task can run on any processing element
+and every processing element can run at most one task.
+
+Which way of mapping these $k$ tasks to the $m \cdot n$ processing elements is
+``the best'' is dependent on underlying optimality criteria which can vary from
+application to application. These could e.g. be highest possible throughput,
+lowest energy consumption, a trade-off between the two or some even more
+complicated application specific criteria.
+%
+Unfortunately, for any such criteria we cannot work with an abstract MPSoC
+architecture alone because we need to consider ``real-world'' processing
+element and communication channel characteristics such as instructions per
+second, power consumption, latency, bandwidth etc.
+
+In general, finding the optimal task mapping under these conditions requires
+evaluating our specific criteria for \textit{every possible} task mapping. This
+evaluation step usually requires time and hardware expensive computer
+simulation and for our example we would have to perform it $(m \cdot n)! / ((m
+\cdot n) - k)!$ times which quickly becomes unfeasible as $m$/$n$ and $k$ grow.
+
+Thus it is of great importance to find a general way to reduce the size of the
+task mapping ``search space''. One possible approach to this problem is to
+traverse the task mapping search space systematically, e.g. by generating
+``promising'' new task mappings based on the performance of previously
+evaluated ones via a genetic algorithm.
+
+\section{Symmetry Reduction}
+\label{sec:mot_symmetry_reduction}
+
+The aim of this thesis is to describe and evaluate a very different method of
+addressing large task mapping search spaces that does \textit{not} rely on
+simulation results at all. Instead, it ``collapses'' the task mapping search
+space via \textit{symmetry reduction}, a technique based on the observation
+that some task mappings are necessarily equivalent \textit{by symmetry} and
+thus do not need to be simulated separately. A set of ``equivalent'' task
+mappings in this context is a set of task mappings that will necessarily
+exhibit the same runtime behaviour (apart from minor differences due to e.g.
+non-identical behaviour of equivalent hardware components elements).
+
+\begin{figure}
+  \centering
+  \begin{subfigure}{.4\textwidth}
+    \includegraphics[width=\textwidth]{resources/pdf/regular_mesh_4_4_mapping1.pdf}
+    \caption{}
+  \end{subfigure}
+  \hspace*{\fill}
+  \begin{subfigure}{.4\textwidth}
+    \includegraphics[width=\textwidth]{resources/pdf/regular_mesh_4_4_mapping2.pdf}
+    \caption{}
+  \end{subfigure}
+  %\\ \\ \\
+  \begin{subfigure}{.4\textwidth}
+    \includegraphics[width=\textwidth]{resources/pdf/regular_mesh_4_4_mapping4.pdf}
+    \caption{}
+  \end{subfigure}
+  \hspace*{\fill}
+  \begin{subfigure}{.4\textwidth}
+    \includegraphics[width=\textwidth]{resources/pdf/regular_mesh_4_4_mapping5.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{Four possible mappings of four tasks to a $4 \times 4$ regular mesh
+           MPSoC architecture.}
+  \label{fig:regular_mesh_4_4_mappings}
+\end{figure}
+
+To clarify what we mean when we talk about equivalence by symmetry, consider
+again the task mapping problem for $k = 4$ for the abstract MPSoC architecture
+introduced in Figure~\ref{fig:regular_mesh_m_n}, this time for the specific
+case $m = n = 4$.  Figure~\ref{fig:regular_mesh_4_4_mappings} shows four
+distinct possible mappings of the four tasks to the given abstract MPSoC
+architecture.
+
+On close inspection we find that task mappings (a) and (b) are not equivalent
+because tasks two and three might not be interchangeable and thus the
+``communication structure'' among the four tasks in (a) and (b) is different.
+On the other hand, task mappings (a) and (c) \textit{are} equivalent since this
+communication structure is preserved.
+
+A more tricky question is whether task mappings (a) and (c) are equivalent to
+task mapping (d). Technically this is not the case because for task
+mapping (d) some additional communication paths exist between the tasks. For
+instance, task one and two can communicate over two paths made up of three
+consecutive communication channels as opposed to just one, as indicated in red.
+However, in practice it would most likely make sense to treat task mapping (a),
+(b) and (d) as equivalent. We say that that task mappings (a) and (b) are
+equivalent \textit{under symmetry} and both of them are equivalent to task
+mapping (d) \textit{under partial symmetry}. We will formalize these concepts
+in Chapter~\ref{chap:tmor}.
+
+Symmetry reduction makes use of these task mapping equivalencies by
+partitioning the task mapping search space into sets of tasks that are
+equivalent under (partial) symmetry. From then on only one ``representative''
+of each of these sets needs to be considered for simulation. Because the
+problem of finding these representatives is so central to the symmetry
+reduction approach, we introduce the term \textit{task mapping orbit
+representative problem} (short \textit{TMOR problem}) to describe it, the
+meaning behind which will become apparent in Chapter~\ref{chap:tmor}.
+
+The symmetry reduction approach was first proposed in~\cite{Goens}. It can be
+easily combined with heuristic methods for traversing the task mapping space.
+As we shall see in Chapter~\ref{chap:exp}, the overhead introduced by symmetry
+reduction is usually small.

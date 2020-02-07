@@ -1,0 +1,40 @@
+This thesis concerns itself with what we refer to as \textit{symmetry
+reduction} of multi-processor systems-on-chips, short \textit{MPSoC}s.  This
+technique is based on previous work presented in~\cite{Goens}. The
+contributions of this thesis are threefold: it elaborates on the theoretical
+foundations underlying~\cite{Goens} in greater detail, it describes some
+further algorithmic improvements and it presents experimental results obtained
+by use of \texttt{mpsym}~\cite{mpsym}, a C++ program written from the ground up
+specifically to address symmetry reduction.
+
+We will make use of well established, as well as some recent state of the art
+methods originated by researchers in the field of \textit{computational group
+theory}, a branch of computational mathematics that concerns itself with the
+representation and analysis of many of the algebraic structures underlying
+group theory. Refer to e.g.~\cite{Holt} for a comprehensive overview.
+
+We begin by informally describing the problem this thesis addresses in
+Section~\ref{sec:mot_problem_statement} and elaborate on what we mean by
+symmetry reduction in Section~\ref{sec:mot_symmetry_reduction}.
+%
+Chapter~\ref{chap:theo} then introduces some necessary fundamentals of
+computational group theory in an accessible manner, focussing on the
+representation of permutation groups and partial permutation
+inverse monoids, algebraic structures we will use to capture the symmetries
+inherent in MPSoC architectures.
+%
+In Chapter~\ref{chap:bsgs} we separately discuss an especially important topic
+touched on in Chapter~\ref{chap:theo} in greater detail: construction of a so
+called \textit{base and strong generating set} for a given permutation group.
+%
+In Chapter~\ref{chap:ag} we then outline how to describe common MPSoC
+architectures mathematically and how to algorithmically transform these
+descriptions into the symmetry capturing algebraic structures introduced in
+Chapter~\ref{chap:theo}.
+%
+Equipped with these fundamentals, we then revisit symmetry reduction in
+Chapter~\ref{chap:tmor} were we discuss it in a more formal manner and present
+several algorithms to address it.
+%
+Finally, in Chapter~\ref{chap:exp} we present some experimental results
+obtained by use of \texttt{mpsym}.

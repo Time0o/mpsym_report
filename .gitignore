@@ -1,0 +1,7 @@
+out/*
+!out/.gitkeep
+_minted-report
+pdf/*
+!pdf/.gitkeep
+resources
+tmp

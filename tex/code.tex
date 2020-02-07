@@ -1,0 +1,57 @@
+Architecture graph descriptions are passed to \texttt{mpsym} in the form of
+\textit{Lua} scripts. For example, Listing~\ref{lst:haec} shows the Lua code
+used to describe the HAEC architecture.
+
+\begin{listing}[H]
+  \caption{haec.lua}
+  \label{lst:haec}
+  %
+  \begin{minted}{lua}
+cal mpsym = require 'mpsym'
+
+local sg_clusters = mpsym.identical_clusters(4, 'SoC')
+local sg_channels = mpsym.linear_channels(sg_clusters, 'wireless')
+
+local prot_processors = mpsym.identical_processors(16, 'P')
+local prot_channels = mpsym.grid_channels(prot_processors, 'optical')
+
+return mpsym.ArchUniformSuperGraph:create{
+  super_graph = mpsym.ArchGraph:create{
+    clusters = sg_clusters,
+    channels = sg_channels
+  },
+  proto = mpsym.ArchGraph:create{
+    processors = prot_processors,
+    channels = prot_channels
+  }
+}
+  \end{minted}
+\end{listing}
+
+\noindent
+Finding task mapping representatives in C++ is then possible as demonstrated
+in Listing~\ref{lst:map_tasks}.
+
+\begin{listing}[H]
+  \caption{haec\_map\_tasks.cpp}
+  \label{lst:map_tasks}
+  %
+  \begin{minted}{cpp}
+auto arch_graph(mpsym::ArchGraphSystem::from_lua("haec.lua"));
+
+std::vector<mpsym::TaskMapping> task_mappings{
+  {1, 45, 35, 17, 58},
+  {2, 46, 22, 19, 20},
+  {3, 11, 8,  14, 55},
+  {4, 38, 43, 16, 47}
+  // ...
+};
+
+mpsym::TaskOrbits task_orbits;
+for (auto const &task_mapping : task_mappings)
+  arch_graph->repr(task_mapping, &task_orbits);
+
+for (auto const &repr : task_orbits)
+  std::cout << "Found task orbit representative: " << repr << std::endl;
+  \end{minted}
+\end{listing}

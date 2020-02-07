@@ -1,0 +1,83 @@
+\documentclass{report}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{gensymb}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{mathtools}
+\usepackage[outputdir=out]{minted}
+\usepackage{multicol}
+\usepackage[numbers]{natbib}
+\usepackage{nicefrac}
+\usepackage{pdfpages}
+\usepackage{pgfplots}
+\usepackage{subcaption}
+\usepackage[many]{tcolorbox}
+\tcbuselibrary{skins,theorems,breakable}
+\usepackage{textcomp}
+\usepackage{tikz}
+\usetikzlibrary{fit,shapes,quotes}
+\usepackage{tkz-berge}
+\usepackage[nottoc]{tocbibind}
+
+% colors
+\definecolor{tcolorboxGray}{RGB}{243,243,243}
+\definecolor{LightGray}{RGB}{230,230,230}
+\definecolor{MediumGray}{RGB}{179,179,179}
+\definecolor{DarkGray}{RGB}{128,128,128}
+\definecolor{LightRed}{RGB}{255,213,213}
+\definecolor{MediumRed}{RGB}{255,128,128}
+
+% additional math operators
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\bigslant}[2]{{\raisebox{.1em}{$#1$}\left/\raisebox{-.1em}{$#2$}\right.}}
+\newcommand\symbolwithin[2]{{\mathmakebox[\widthof{\ensuremath{{}#2{}}}][c]{{#1}}}}
+
+% theorem etc. formatting
+\newcommand{\definetcolorbox}[2]{
+  \newtcolorbox[
+    auto counter,
+    number within=chapter,
+    number freestyle={\noexpand\thechapter.\noexpand\arabic{\tcbcounter}}]{#1}[2][]
+  {
+    enhanced,
+    breakable,
+    enlarge top by=1ex,
+    enlarge bottom by=1ex,
+    before upper={\parindent15pt\noindent},
+    after={\noindent},
+    fonttitle=\bfseries,
+    title=#2~\thetcbcounter: ##2,
+    ##1
+  }
+}
+
+\definetcolorbox{thm}{Theorem}
+\definetcolorbox{lemma}{Lemma}
+\definetcolorbox{corollary}{Corollary}
+\definetcolorbox{defn}{Definition}
+\definetcolorbox{exmp}{Example}
+
+% algorithm formatting
+\renewcommand{\thealgorithm}{\arabic{chapter}.\arabic{algorithm}}
+
+\makeatletter
+\algnewcommand{\LineComment}[1]{\Statex \hskip\ALG@thistlm \(\triangleright\) #1}
+\makeatother
+
+% listing formatting
+\counterwithin{listing}{chapter}
+
+% bibliography formatting
+\renewcommand{\bibpreamble}{\begin{multicols}{2}}
+\renewcommand{\bibpostamble}{\end{multicols}}
+
+% footnote spacing
+\addtolength{\skip\footins}{2pc plus 5pt}

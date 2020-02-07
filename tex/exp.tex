@@ -1,0 +1,404 @@
+This chapter describes experimental results collected during the evaluation of
+the most important algorithms presented in previous chapters.  We implement
+these algorithms both in the computational algebra system/scripting language
+GAP~\cite{GAP4} and in \texttt{mpsym}. All experiments were performed on a
+single machine with two Intel\textregistered\ Core\texttrademark\ i5-6200U CPU
+cores and 4 GiB DDR3-SDRAM.
+
+Section~\ref{sec:exp_mpsoc_architectures} first describes the abstract MPSoC
+architectures for which we perform our experiments. In
+Section\ref{sec:exp_automorphism_group_construction} we then examine how fast
+we can construct a BSGS for an architectures automorphism group. Finally, in
+Section\ref{sec:exp_repr} we compare the performance of the different TMOR
+algorithms outlined in Section\ref{sec:tmor_algorithmic_approaches} for large
+sets of randomly generated $k$-task mappings, for different values of $k$.
+
+Again, we do not consider partial automorphisms for practical reasons as
+indicated in the introduction of Chapter~\ref{chap:tmor}.
+
+\section{Architectures}
+\label{sec:exp_mpsoc_architectures}
+
+We perform our experiements for four examplary abstract MPSoC architectures
+based on real world MPSoCs. We briefly list and visualize these architectures
+here but do not explicitly provide architectures graphs for brevity's sake.  In
+the following sections we denote the architecture graph corresponding to an
+architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
+
+\begin{figure}
+  \centering
+    \includegraphics[width=.4\textwidth]{resources/pdf/exynos.pdf}
+  \caption{Exynos architecture with two different types of processing elements.
+           Each processing element has its own L1 cache and all processing
+           elements of the same type share a separate L2 cache. All processing
+           elements can also communicate via shared RAM.}
+  \label{fig:exynos}
+\end{figure}
+
+\begin{figure}
+  \centering
+    \includegraphics[width=.45\textwidth]{resources/pdf/parallella.pdf}
+  \caption{Parallelas Epiphany coprocessor architecture with 64 processing
+           elements connected in a regular mesh fashion.}
+  \label{fig:parallella}
+\end{figure}
+
+\begin{figure}
+  \centering
+    \includegraphics[width=.6\textwidth]{resources/pdf/haec.pdf}
+  \caption{HAEC architecture with four separate SoCs, each similar to
+           Parallellas Epiphany coprocessor. The processing elements on one
+           SoC can communicate with each other via optical links and with
+           \textit{all} processing elements on an adjacent SoC via a wireless
+           link.}
+  \label{fig:haec}
+\end{figure}
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\textwidth]{resources/pdf/kalray.pdf}
+  \caption{Kalray MMPA-256 architecture made up of 16 identical clusters of 16
+           processing elements fully connected via shared memory. The clusters
+           themselves are connected in a 2D torus topology.}
+  \label{fig:kalray}
+\end{figure}
+
+\begin{itemize}
+\item The
+\textit{Exynos}\footnote{\hyperlink{https://www.samsung.com/semiconductor/minisite/exynos/}{https://www.samsung.com/semiconductor/minisite/exynos/}}
+MPSoC developed by Samsung, with \textit{Octa Big-Little} multi core
+configuration. See Figure~\ref{fig:exynos}.
+
+\item A 16 by 16 processing element regular mesh based on the
+\textit{Epiphany} \cite{Olofsson16} coprocessor of the
+\textit{Parallella}\footnote{\hyperlink{https://www.parallella.org/}{https://www.parallella.org/}}
+board. See Figure~\ref{fig:parallella}.
+
+\item The \textit{HAEC}~\cite{HAEC} architecture, consisting of several optical
+link based MPSoCs connected to each other by wireless links. See
+Figure~\ref{fig:haec}.
+
+\item The \textit{Kalray
+MMPA-256}\footnote{\hyperlink{https://www.kalrayinc.com/}{https://www.kalrayinc.com/}}
+architecture made up of 16 identical compute clusters. See
+Figure~\ref{fig:kalray}.
+\end{itemize}
+%
+For reference we also list the orders of these four architectures' automorphism
+groups here:
+%
+\begin{itemize}
+\item $|G_{\mathrm{Exynos}}| = 576$.
+
+\item $|G_{\mathrm{Parallella}}| = 8$.
+
+\item $|G_{\mathrm{HAEC}}| = 8192$ and $G_{\mathrm{HAEC}} =
+G_{\mathrm{HAEC,proto}} \wr G_{\mathrm{HAEC,super}}$ with
+$|G_{\mathrm{HAEC,proto}}| = 8$ and $|G_{\mathrm{HAEC,super}}| = 2$
+
+\item $|G_{\mathrm{Kalray}}| \approx 1.079 \cdot 10^{214}$ and
+$G_{\mathrm{Kalray}} = G_{\mathrm{Kalray,proto}} \wr G_{\mathrm{Kalray,super}}$
+with $|G_{\mathrm{Kalray,proto}}| = 16!$ and $|G_{\mathrm{Kalray,super}}| = 8$
+\end{itemize}
+
+\section{Automorphism Group Construction}
+\label{sec:exp_automorphism_group_construction}
+
+\subsection{Methodology}
+
+We first analyse how quickly we can construct a BSGS for a given architectures
+automorphism group. This is a prerequisite to solving the TMOR
+problem and we will from now on use the term \textit{setup time} to refer to
+the overhead incurred by this. Constructing a BSGS for an architecture
+graph $A_X$ requires us to perform the following steps:
+%
+\begin{itemize}
+\item 1. Construct a graph data structure representing $A_X$.
+\item 2. From this data structure, find a generating set for $G_X$.
+\item 3. From this generating set, construct a BSGS for $G_X$.
+\end{itemize}
+%
+For steps 1 and 2, our GAP implementation makes use of the
+\textit{grape}~\cite{grape} package and \texttt{mpsym} makes use of the
+\textit{Boost Graph Library}~\cite{BGL} and
+\textit{nauty}~\cite{nauty}\footnote{grape also uses nauty internally.}, a
+program which is able to efficiently determine generating sets for the
+automorphism groups of vertex colored graphs\footnote{Remember that we showed
+in Section~\ref{sec:ag_determining_automorphisms} how to convert any totally
+colored undirected graph to an isomorphic vertex colored one.}
+
+Step 3 is where the Schreier-Sims Algorithm comes into play. GAP does not
+directly expose its internal implementations of the different BSGS construction
+algorithms. Instead, GAP automatically chooses which algorithm variant or
+variants to apply for any given generating set based on complex heuristics.
+\texttt{mpsym} currently only implements the ``basic'' Deterministic
+Schreier-Sims Algorithm and the Random Schreier-Sims Algorithm.  Since step 3
+is usually significantly more computationally expensive than steps 1 and 2 we
+only present total execution time data.  We compare the following algorithm
+variants:
+
+\begin{itemize}
+\item BSGS construction using GAP.
+
+\item BSGS construction using \texttt{mpsym}. We employ both the Deterministic
+Schreier-Sims Algorithm on its own and the Random followed by the Deterministic
+Schreier-Sims Algorithm (to guarantee correctness).
+
+We also emply the Random Schreier-Sims Algorithm on its own. Note however, that
+we do this with the sole purpose of demonstrating how the execution times of a
+single run of the Deterministic and Random Schreier-Sims Algorithms compare.
+%
+We do not attempt to draw a direct comparison between the two algorithms
+because the Random Schreier-Sims Algorithm it is not guaranteed to produce a
+correct BSGS.
+%
+Of course we could simply choose $w$ to be suitably large as to make
+correctness of the constructed BSGS very likely.
+%
+But because \texttt{mpsym} currently does not implement any of the algorithms
+outlined in Section~\ref{sec:bsgs_the_random_schreier_sims_algorithm} for
+detecting/guaranteeing correctness of a BSGS, we have no simple way of checking
+whether a BSGS constructed this way is correct. Thus we cannot empirically
+verify the relationship between $w$ and the likelihood of a correctly
+constructed BSGS\footnote{Unless we verify correctness via complete group
+enumeration which is obviously impractical for large automorphism groups.} for
+any given generating set. For this reason, we omit this information altogether.
+\end{itemize}
+
+\subsection{Results}
+
+\begin{figure}
+  \centering
+  \input{resources/tex/gap_boxplot.tex}
+  \input{resources/tex/mpsym_boxplot.tex}
+  \caption{BSGS construction execution times for the Exynos, HAEC and
+           Parallella architectures. The value $w = 10$ was chosen for
+           \texttt{mpsym}s implementation of the Random Schreier-Sims Algorithm.
+           Boxplots were generated from 1000 runs each.}
+  \label{fig:bsgs_boxplot}
+\end{figure}
+
+Figure~\ref{fig:bsgs_boxplot} visualizes the BSGS construction execution times
+for three of our four architectures using both our GAP and \texttt{mpsym}
+implementations.  We can make the following observations:
+
+\begin{itemize}
+\item For these three architectures with relatively low automorphism group order,
+\texttt{mpsym} outperforms GAP significantly.
+
+\item For the HAEC architecture, the difference in execution time between the
+Random and Deterministic Schreier-Sims Algorithm, as implemented in
+\texttt{mpsym}, is most pronounced.  Nevertheless, combining both algorithms
+does not result in a speedup over the deterministic algorithm alone.
+\end{itemize}
+%
+We have purposefully omitted the Kalray architecture from
+Figure~\ref{fig:bsgs_boxplot} because deterministically constructing a BSGS for
+$G_{\mathrm{Kalray}}$ is computationally very expensive. While GAP is able to
+so after several seconds, \texttt{mpsym} is unable to even after several
+minutes of execution time. However, we can potentially do much better in two ways:
+
+\begin{itemize}
+\item (1) \textit{Avoiding BSGS construction}: Using
+Algorithm~\ref{alg:task_repr_wreath_prod} we can solve the TMOR problem without
+the need for a BSGS for $G_{\mathrm{Kalray,proto}} \wr
+G_{\mathrm{Kalray,super}}$. Instead, we construct BSGSs for
+$\sigma(G_{\mathrm{Kalray,super}})$ and
+$\sigma(G_{\mathrm{Kalray,proto}})$\footnote{This obviously also applies to
+other hierarchical architectures, e.g. HAEC. But since BSGS construction for
+$G_{\mathrm{HAEC}}$ is already very fast we only present a comparison for the
+Kalray architecture.}.
+%
+\item (2) \textit{Symmetric group detection}: There exists an efficient and
+reliable Monte-Carlo algorithm for testing whether a given generating set
+generates a symmetric group, refer to e.g.~\cite{Holt} Chapter 3, such that it
+is possible to explicitly construct a BSGS for $S_{16}$ without the need to run
+the Schreier-Sims algorithm, even when we are initially unaware that
+$G_{\mathrm{Kalray,proto}}$ is a symmetric group.
+\end{itemize}
+
+\noindent
+Table~\ref{tab:bsgs_kalray} compares the total setup time when using GAP versus
+when using \texttt{mpsym} in combination with the methods described above.
+Clearly, using method (1) is much less computationally expensive than
+constructing a BSGS for $G_{\mathrm{Kalray}}$. Of course taking this approach
+implies that we must subsequently use Algorithm~\ref{alg:task_repr_wreath_prod}
+to solve the TMOR problem. In Section~\ref{sec:exp_repr} we will analyse
+whether this results in further speedup. Using method (2) results in an
+additional speedup of about 25\%.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}[t]{lc}
+    \toprule
+    Method                    & Execution Time \\
+    \hline
+    GAP                       & $15.31 \pm 0.05s$ \\
+    \texttt{mpsym}, (1)       & $3.31 \cdot 10^{-1} \pm 0.01 \cdot 10^{-1}$ \\
+    \texttt{mpsym}, (1) + (2) & $2.43 \cdot 10^{-1} \pm 0.07 \cdot 10^{-1}$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{BSGS construction execution times for the Kalray board.
+           \texttt{mpsym} makes use of the Deterministic Schreier-Sims Algorithm.
+           Means and standard deviations obtained from 10 runs each and
+           rounded to nearest two/three decimal places.}
+  \label{tab:bsgs_kalray}
+\end{table}
+
+\section{Solving the TMOR problem}
+\label{sec:exp_repr}
+
+\subsection{Methodology}
+\label{sec:exp_repr_methodology}
+
+We now analyse how quickly we are able to solve the TMOR problem for each of
+our four architectures.  To this end we generate 10,000 suitable random
+$k$-task mappings by uniformly sampling from $\Theta_A^k$ from
+Example~\ref{exmp:task_mapping_space} (for $k \in \{4,8,12,16\}$) per
+architecture and then determine how long it takes to find orbit representatives
+for all of them using each of the following algorithms:
+
+\begin{itemize}
+\item Algorithm~\ref{alg:task_repr_iterate}, i.e. bruteforce iteration,
+implemented in both GAP and \texttt{mpsym}.
+
+\item Algorithm~\ref{alg:task_repr_orbit} , i.e. bruteforce orbit enumeration,
+implemented in GAP. We do not consider an \texttt{mpsym} implementation of this
+algorithm here because orbit enumeration as implemented in \texttt{mpsym} is
+currently very slow. A possible explanation for this performance discrepancy
+between GAP and \texttt{mpsym} is that our GAP implementation makes use of the
+highly optimized \textit{orb}~\cite{orb} package.
+
+\item Algorithm~\ref{alg:task_repr_local_search}, i.e. local search,
+implemented in \texttt{mpsym}. Since the taks mapping representatives
+determined via local search are not guaranteed to be correct, we also note the
+success rate of this algorithm, i.e. the ratio of correctly determined orbit
+representatives to the number of task mappings.  For the sake of brevity we do
+not experiment with any of the possible augmentations to this algorithm
+discussed in Section\ref{sec:tmor_algorithmic_approaches}.
+
+\item Algorithm~\ref{alg:task_repr_wreath_prod} , i.e. hierarchical
+decomposition, implemented in \texttt{mpsym}. We perform decomposition
+explicitly for the HAEC and Kalray architectures. We use this algorithm in
+combination with both bruteforce iteration and local search and note any
+execution time and/or accuracy improvements.
+\end{itemize}
+
+\subsection{Results}
+\label{sec:exp_repr_results}
+
+We now present numerical results and analyse if they are consistent with the
+considerations we made in
+Section\ref{sec:tmor_complexity_and_accuracy_considerations}.  For all figures
+in this section, presented execution times are means of ten independent runs
+and local search results are annotated with the achieved accuracy.
+
+\begin{figure}
+  \centering
+  \input{resources/tex/exynos_lineplot.tex}
+  \caption{TMOR results for the Exynos architecture.}
+  \label{fig:exynos_lineplot}
+  %
+  \vspace{1cm}
+  %
+  \input{resources/tex/parallella_lineplot.tex}
+  \caption{TMOR results for the Parallella architecture.}
+  \label{fig:parallella_lineplot}
+\end{figure}
+
+\subsubsection{Exynos}
+
+Starting with the results for the Exynos architecture presented in
+Figure~\ref{fig:exynos_lineplot} we can already make several important
+observations:
+%
+\begin{itemize}
+  \item Bruteforce orbit enumeration is faster than bruteforce iteration for
+        the chosen values of $k$ but its performance, as expected, depends
+        more strongly on $k$.
+  \item The \texttt{mpsym} implementation of bruteforce iteration is more than an
+        order of magnitude faster than the corresponding GAP implementation.
+  \item Local search is significantly faster than bruteforce iteration and
+        returns the correct representative for all 10,000 task mappings.
+\end{itemize}
+
+\subsubsection{Parallella}
+
+The results for the Parallella architecture presented in
+Figure~\ref{fig:parallella_lineplot} exhibit similar trends. Here however,
+bruteforce iteration is faster than orbit enumeration for the chosen
+values of $k$ which is most likely due to the very small order of Parallellas
+automorphism group. Nevertheless, local search is still faster than bruteforce
+iteration and achieves perfect accuracy as well.
+
+\subsubsection{HAEC}
+
+\begin{figure}
+  \centering
+  \input{resources/tex/haec_lineplot.tex}
+  \caption{TMOR results for the HAEC architecture. GAP data is extrapolated
+           from execution times measured on just 100 random task mappings.
+           Data series marked with ``*'' do \textbf{not} make use of
+           hierarchical decomposition.}
+  \label{fig:haec_lineplot}
+  %
+  \vspace{1cm}
+  %
+  \input{resources/tex/haec_histogram.tex}
+  \caption{Orbit size distribution for 100 random task mappings for the HAEC
+           architecture, for different values of $k$. $n$ refers to the number
+           of occurences of orbits of the corresponding size.}
+  \label{fig:haec_histogram}
+\end{figure}
+
+The HAEC architecture, for which results are presented in
+Figure~\ref{fig:haec_lineplot} is the first for which the performance of
+bruteforce iteration and orbit enumeration diverge drastically. While
+$|G_{\mathrm{HAEC}}|$ is relatively small, the average
+size of its orbits grows quickly with $k$. This is further demonstrated in
+Figure~\ref{fig:haec_histogram} which visualizes how the size of more and more
+orbits approaches or equals $|G_{\mathrm{HAEC}}|$ as $k$ grows\footnote{Note that
+all orbit sizes divide $|G_{\mathrm{HAEC}}|$.}. Furthermore we can observe that
+hierarchically decomposing HAECs automorphism group results in a speedup of
+almost three orders of magnitude when used in combination with bruteforce
+iteration and a jump from mediocre to perfect accuracy when used in combination
+with local search.
+
+\subsubsection{Kalray}
+
+\begin{figure}
+  \input{resources/tex/kalray_lineplot.tex}
+  \caption{Results for the Kalray architecture. Both data series make use
+           of hierarchical decomposition and transitive group optimization.}
+  \label{fig:kalray_lineplot}
+\end{figure}
+
+The benefits of hierarchical decomposition are made even more clear by the
+results for the Kalray architecture presented in
+Figure~\ref{fig:kalray_lineplot}.  Here, without architecture graph
+decomposition, bruteforce iteration, implemented in both GAP and
+\texttt{mpsym}, as well as bruteforce orbit enumeration are not able to find a
+representative for \textbf{a single} task mapping even after executing for
+several minutes and local search is not able to accurately determine even a
+single representative.  Finding representatives for thousands of task mappings
+without hierarchical decomposition is thus completely infeasible.
+
+With architecture graph decomposition alone, the situation still looks dire:
+Each of the clusters making up the Kalray architecture has the automorphism
+group $G_{\mathrm{Kalray,proto}} = S_{16}$ and similarly, all
+$\sigma_i(G_{\mathrm{Kalray,proto}}) \in \sigma(G_{\mathrm{Kalray,proto}})$ are
+isomorphic to $S_{16}$.  Because $|S_{16}| = 16!$, albeit much smaller than the
+complete automorphism group, is still very large, bruteforce iteration remains
+slow and local search remains unacceptably inaccurate. This is however easily
+remedied because symmetric permutation groups are transitive which allows us to
+trivially solve the TMOR problem for all $\sigma_i(G_{\mathrm{Kalray,proto}})
+\in \sigma(G_{\mathrm{Kalray,proto}})$ (since there is only one orbit, the
+representative is the same for every possible task mapping). Since in this case
+$|G_{\mathrm{Kalray,super}}|$ is small, the overall TMOR problem becomes
+feasible.
+
+Figure~\ref{fig:kalray_lineplot} visualizes results obtained using both
+architecture graph decomposition and the aforementioned transitive group
+optimization. Finding correct representatives for all 10,000 task mappings
+takes less than a second in total using both bruteforce iteration and local
+search and the latter achieves perfect accuracy as well.
