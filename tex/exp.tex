@@ -1,6 +1,6 @@
 This chapter describes experimental results collected during the evaluation of
 the most important algorithms presented in previous chapters.  We implement
-these algorithms both in the computational algebra system/scripting language
+these algorithms both in the computer algebra system/scripting language
 GAP~\cite{GAP4} and in \texttt{mpsym}. All experiments were performed on a
 single machine with two Intel\textregistered\ Core\texttrademark\ i5-6200U CPU
 cores and 4 GiB DDR3-SDRAM.
@@ -8,7 +8,7 @@ cores and 4 GiB DDR3-SDRAM.
 Section~\ref{sec:exp_mpsoc_architectures} first describes the abstract MPSoC
 architectures for which we perform our experiments. In
 Section\ref{sec:exp_automorphism_group_construction} we then examine how fast
-we can construct a BSGS for an architectures automorphism group. Finally, in
+we can construct a BSGS for an architecture's automorphism group. Finally, in
 Section\ref{sec:exp_repr} we compare the performance of the different TMOR
 algorithms outlined in Section\ref{sec:tmor_algorithmic_approaches} for large
 sets of randomly generated $k$-task mappings, for different values of $k$.
@@ -20,8 +20,8 @@ indicated in the introduction of Chapter~\ref{chap:tmor}.
 \label{sec:exp_mpsoc_architectures}
 
 We perform our experiements for four examplary abstract MPSoC architectures
-based on real world MPSoCs. We briefly list and visualize these architectures
-here but do not explicitly provide architectures graphs for brevity's sake.  In
+based on real-world MPSoCs. We briefly list and visualize these architectures
+here but do not explicitly provide architecture graphs for brevity's sake.  In
 the following sections we denote the architecture graph corresponding to an
 architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
@@ -38,7 +38,7 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 \begin{figure}
   \centering
     \includeressource[width=.45\textwidth]{parallella.pdf}
-  \caption{Parallelas Epiphany coprocessor architecture with 64 processing
+  \caption{Parallela's Epiphany coprocessor architecture with 64 processing
            elements connected in a regular mesh fashion.}
   \label{fig:parallella}
 \end{figure}
@@ -74,8 +74,8 @@ configuration. See Figure~\ref{fig:exynos}.
 \textit{Parallella}\footnote{\hyperlink{https://www.parallella.org/}{https://www.parallella.org/}}
 board. See Figure~\ref{fig:parallella}.
 
-\item The \textit{HAEC}~\cite{HAEC} architecture, consisting of several optical
-link based MPSoCs connected to each other by wireless links. See
+\item The \textit{HAEC}~\cite{HAEC} architecture, consisting of several
+optical-link-based MPSoCs connected to each other by wireless links. See
 Figure~\ref{fig:haec}.
 
 \item The \textit{Kalray
@@ -118,7 +118,7 @@ graph $A_X$ requires us to perform the following steps:
 \item 3. From this generating set, construct a BSGS for $G_X$.
 \end{itemize}
 %
-For steps 1 and 2, our GAP implementation makes use of the
+For Step 1 and 2, our GAP implementation makes use of the
 \textit{grape}~\cite{grape} package and \texttt{mpsym} makes use of the
 \textit{Boost Graph Library}~\cite{BGL} and
 \textit{nauty}~\cite{nauty}\footnote{grape also uses nauty internally.}, a
@@ -129,11 +129,11 @@ colored undirected graph to an isomorphic vertex colored one.}
 
 Step 3 is where the Schreier-Sims Algorithm comes into play. GAP does not
 directly expose its internal implementations of the different BSGS construction
-algorithms. Instead, GAP automatically chooses which algorithm variant or
+algorithms. Instead, it automatically chooses which algorithm variant or
 variants to apply for any given generating set based on complex heuristics.
 \texttt{mpsym} currently only implements the ``basic'' Deterministic
-Schreier-Sims Algorithm and the Random Schreier-Sims Algorithm.  Since step 3
-is usually significantly more computationally expensive than steps 1 and 2 we
+Schreier-Sims Algorithm and the Random Schreier-Sims Algorithm. Since Step 3
+is usually significantly more computationally expensive than Step 1 and 2, we
 only present total execution time data.  We compare the following algorithm
 variants:
 
@@ -144,9 +144,10 @@ variants:
 Schreier-Sims Algorithm on its own and the Random followed by the Deterministic
 Schreier-Sims Algorithm (to guarantee correctness).
 
-We also emply the Random Schreier-Sims Algorithm on its own. Note however, that
-we do this with the sole purpose of demonstrating how the execution times of a
-single run of the Deterministic and Random Schreier-Sims Algorithms compare.
+We also employ the Random Schreier-Sims Algorithm on its own. Note, however,
+that we do this with the sole purpose of demonstrating how the execution times
+of a single run of the Deterministic and Random Schreier-Sims Algorithms
+compare.
 %
 We do not attempt to draw a direct comparison between the two algorithms
 because the Random Schreier-Sims Algorithm it is not guaranteed to produce a
@@ -158,7 +159,7 @@ correctness of the constructed BSGS very likely.
 But because \texttt{mpsym} currently does not implement any of the algorithms
 outlined in Section~\ref{sec:bsgs_the_random_schreier_sims_algorithm} for
 detecting/guaranteeing correctness of a BSGS, we have no simple way of checking
-whether a BSGS constructed this way is correct. Thus we cannot empirically
+whether a BSGS constructed this way is correct. Thus, we cannot empirically
 verify the relationship between $w$ and the likelihood of a correctly
 constructed BSGS\footnote{Unless we verify correctness via complete group
 enumeration which is obviously impractical for large automorphism groups.} for
@@ -169,8 +170,7 @@ any given generating set. For this reason, we omit this information altogether.
 
 \begin{figure}
   \centering
-  \inputressource{gap_boxplot.tex}
-  \inputressource{mpsym_boxplot.tex}
+  \inputressource{bsgs_boxplot.tex}
   \caption{BSGS construction execution times for the Exynos, HAEC and
            Parallella architectures. The value $w = 10$ was chosen for
            \texttt{mpsym}s implementation of the Random Schreier-Sims Algorithm.
@@ -183,8 +183,7 @@ for three of our four architectures using both our GAP and \texttt{mpsym}
 implementations.  We can make the following observations:
 
 \begin{itemize}
-\item For these three architectures with relatively low automorphism group order,
-\texttt{mpsym} outperforms GAP significantly.
+\item For these three architectures \texttt{mpsym} outperforms GAP significantly.
 
 \item For the HAEC architecture, the difference in execution time between the
 Random and Deterministic Schreier-Sims Algorithm, as implemented in
@@ -252,36 +251,36 @@ additional speedup of about 25\%.
 \label{sec:exp_repr_methodology}
 
 We now analyse how quickly we are able to solve the TMOR problem for each of
-our four architectures.  To this end we generate 10,000 suitable random
-$k$-task mappings by uniformly sampling from $\Theta_A^k$ from
-Example~\ref{exmp:task_mapping_space} (for $k \in \{4,8,12,16\}$) per
-architecture and then determine how long it takes to find orbit representatives
-for all of them using each of the following algorithms:
+our four architectures. To this end we generate 10,000 suitable random $k$-task
+mappings per architecture by uniformly sampling from $\Theta_A^k$ from
+Example~\ref{exmp:task_mapping_space} (for $k \in \{4,8,12,16\}$) and then
+determine how long it takes to find orbit representatives for all of them using
+each of the following algorithms:
 
 \begin{itemize}
 \item Algorithm~\ref{alg:task_repr_iterate}, i.e. bruteforce iteration,
 implemented in both GAP and \texttt{mpsym}.
 
 \item Algorithm~\ref{alg:task_repr_orbit} , i.e. bruteforce orbit enumeration,
-implemented in GAP. We do not consider an \texttt{mpsym} implementation of this
-algorithm here because orbit enumeration as implemented in \texttt{mpsym} is
-currently very slow. A possible explanation for this performance discrepancy
-between GAP and \texttt{mpsym} is that our GAP implementation makes use of the
-highly optimized \textit{orb}~\cite{orb} package.
+implemented in both GAP and \texttt{mpsym}.
 
 \item Algorithm~\ref{alg:task_repr_local_search}, i.e. local search,
-implemented in \texttt{mpsym}. Since the taks mapping representatives
-determined via local search are not guaranteed to be correct, we also note the
-success rate of this algorithm, i.e. the ratio of correctly determined orbit
-representatives to the number of task mappings.  For the sake of brevity we do
-not experiment with any of the possible augmentations to this algorithm
-discussed in Section\ref{sec:tmor_algorithmic_approaches}.
+implemented in both GAP and \texttt{mpsym}. Since the taks mapping
+representatives determined via local search are not guaranteed to be correct,
+we also note the success rate of this algorithm, i.e. the ratio of correctly
+determined orbit representatives to the number of task mappings.  For the sake
+of brevity we do not experiment with any of the possible augmentations to this
+algorithm discussed in Section\ref{sec:tmor_algorithmic_approaches}.
 
 \item Algorithm~\ref{alg:task_repr_wreath_prod} , i.e. hierarchical
 decomposition, implemented in \texttt{mpsym}. We perform decomposition
 explicitly for the HAEC and Kalray architectures. We use this algorithm in
 combination with both bruteforce iteration and local search and note any
 execution time and/or accuracy improvements.
+
+Due to time constraints, we did not implement hierarchical decomposition in GAP
+and consequently only present data obtained by use of our \texttt{mpsym}
+implementations for the HAEC and Kalray architectures.
 \end{itemize}
 
 \subsection{Results}
@@ -316,9 +315,11 @@ observations:
   \item Bruteforce orbit enumeration is faster than bruteforce iteration for
         the chosen values of $k$ but its performance, as expected, depends
         more strongly on $k$.
-  \item The \texttt{mpsym} implementation of bruteforce iteration is more than an
-        order of magnitude faster than the corresponding GAP implementation.
-  \item Local search is significantly faster than bruteforce iteration and
+  \item Our \texttt{mpsym} implementations of bruteforce orbit enumeration and
+        iteration are more than an order of magnitude faster than the
+        corresponding GAP implementation.
+  \item Local search, as implemented in both GAP and \texttt{mpsym}, is
+        significantly faster than bruteforce orbit enumeration and iteration and
         returns the correct representative for all 10,000 task mappings.
 \end{itemize}
 
@@ -336,10 +337,8 @@ iteration and achieves perfect accuracy as well.
 \begin{figure}
   \centering
   \inputressource{haec_lineplot.tex}
-  \caption{TMOR results for the HAEC architecture. GAP data is extrapolated
-           from execution times measured on just 100 random task mappings.
-           Data series marked with ``*'' do \textbf{not} make use of
-           hierarchical decomposition.}
+  \caption{TMOR results for the HAEC architecture. Data series marked with
+           ``*'' do \textbf{not} make use of hierarchical decomposition.}
   \label{fig:haec_lineplot}
   %
   \vspace{1cm}
@@ -351,54 +350,53 @@ iteration and achieves perfect accuracy as well.
   \label{fig:haec_histogram}
 \end{figure}
 
-The HAEC architecture, for which results are presented in
-Figure~\ref{fig:haec_lineplot} is the first for which the performance of
-bruteforce iteration and orbit enumeration diverge drastically. While
-$|G_{\mathrm{HAEC}}|$ is relatively small, the average
-size of its orbits grows quickly with $k$. This is further demonstrated in
-Figure~\ref{fig:haec_histogram} which visualizes how the size of more and more
-orbits approaches or equals $|G_{\mathrm{HAEC}}|$ as $k$ grows\footnote{Note that
-all orbit sizes divide $|G_{\mathrm{HAEC}}|$.}. Furthermore we can observe that
-hierarchically decomposing HAECs automorphism group results in a speedup of
-almost three orders of magnitude when used in combination with bruteforce
-iteration and a jump from mediocre to perfect accuracy when used in combination
-with local search.
+For the HAEC architecture, for which results are presented in
+Figure~\ref{fig:haec_lineplot}, the performance of bruteforce orbit enumeration
+again strongly depends on $k$. Figure~\ref{fig:haec_histogram} hints at why
+this is the case. It visualizes how the size of more and more orbits approaches
+or equals $|G_{\mathrm{HAEC}}|$ as $k$ grows\footnote{Note that all orbit sizes
+divide $|G_{\mathrm{HAEC}}|$.}.
+
+Furthermore we can observe that hierarchically decomposing HAECs automorphism
+group results in a speedup of several orders of magnitude when used in
+combination with bruteforce orbit enumeration or iteration and a jump from
+mediocre to perfect accuracy when used in combination with local search.
 
 \subsubsection{Kalray}
 
 \begin{figure}
   \inputressource{kalray_lineplot.tex}
-  \caption{Results for the Kalray architecture. Both data series make use
+  \caption{Results for the Kalray architecture. All data series make use
            of hierarchical decomposition and transitive group optimization.}
   \label{fig:kalray_lineplot}
 \end{figure}
 
 The benefits of hierarchical decomposition are made even more clear by the
 results for the Kalray architecture presented in
-Figure~\ref{fig:kalray_lineplot}.  Here, without architecture graph
-decomposition, bruteforce iteration, implemented in both GAP and
-\texttt{mpsym}, as well as bruteforce orbit enumeration are not able to find a
-representative for \textbf{a single} task mapping even after executing for
-several minutes and local search is not able to accurately determine even a
-single representative.  Finding representatives for thousands of task mappings
-without hierarchical decomposition is thus completely infeasible.
+Figure~\ref{fig:kalray_lineplot}. Here, without architecture graph both
+bruteforce orbit enumeration and iteration, implemented in both GAP and
+\texttt{mpsym}, are not able to find a representative for \textbf{a single}
+task mapping even after executing for several minutes and local search is not
+able to accurately determine even a single representative. Finding
+representatives for thousands of task mappings without hierarchical
+decomposition is thus completely infeasible.
 
 With architecture graph decomposition alone, the situation still looks dire:
 Each of the clusters making up the Kalray architecture has the automorphism
 group $G_{\mathrm{Kalray,proto}} = S_{16}$ and similarly, all
 $\sigma_i(G_{\mathrm{Kalray,proto}}) \in \sigma(G_{\mathrm{Kalray,proto}})$ are
 isomorphic to $S_{16}$.  Because $|S_{16}| = 16!$, albeit much smaller than the
-complete automorphism group, is still very large, bruteforce iteration remains
-slow and local search remains unacceptably inaccurate. This is however easily
-remedied because symmetric permutation groups are transitive which allows us to
-trivially solve the TMOR problem for all $\sigma_i(G_{\mathrm{Kalray,proto}})
-\in \sigma(G_{\mathrm{Kalray,proto}})$ (since there is only one orbit, the
-representative is the same for every possible task mapping). Since in this case
-$|G_{\mathrm{Kalray,super}}|$ is small, the overall TMOR problem becomes
-feasible.
+complete automorphism group, is still very large, bruteforce orbit enumeration
+and iteration slow and local search remains unacceptably inaccurate. This is
+however easily remedied because symmetric permutation groups are transitive
+which allows us to trivially solve the TMOR problem for all
+$\sigma_i(G_{\mathrm{Kalray,proto}}) \in \sigma(G_{\mathrm{Kalray,proto}})$
+\footnote{Since there is only one orbit, the representative is the same for
+every possible task mapping.}. Since in this case $|G_{\mathrm{Kalray,super}}|$
+is small, the overall TMOR problem becomes feasible.
 
 Figure~\ref{fig:kalray_lineplot} visualizes results obtained using both
 architecture graph decomposition and the aforementioned transitive group
 optimization. Finding correct representatives for all 10,000 task mappings
-takes less than a second in total using both bruteforce iteration and local
-search and the latter achieves perfect accuracy as well.
+takes less than a second in total in all cases and local search achieves
+perfect accuracy as well.

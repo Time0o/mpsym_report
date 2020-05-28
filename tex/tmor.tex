@@ -415,16 +415,21 @@ Lemma~\ref{lemma:cauchy_frobenius}. Since these orbits partition
 $\Theta_{A}^k$, we also know that their sizes must sum to $|\Theta_{A}^k|$ and
 we can thus easily determine the \textit{average} orbit size. However, the
 total execution time of the bruteforce orbit enumeration algorithm largely
-depends on the size of the \textit{largest} orbit or orbits.  There are two
-reasons for this:
+depends on the size of the \textit{largest} orbit or orbits\footnote{This does
+not hold if $G$ partitions $\Theta_A^k$ into a large number of very small
+orbits and relatively few large ones whose combined size is still small
+compared to $|\Theta_A^k|$. We shall not analyse when or if this occurs in
+detail.}. There are two reasons for this:
 
 \begin{itemize}
 \item For a given task mapping $T_{A}^k$ the runtime complexity of the
 bruteforce orbit enumeration algorithm grows superlinearly with
 $|T_{A}^{k,G}|$ as described above.
 
-\item The probability of some $T_A^k$ randomly drawn from $\Theta_A^k$ lying in
-a larger orbit is greater than the probability of it lying in a smaller orbit.
+\item For two orbits, one significantly larger than the other, the probability
+of some $T_A^k$ randomly drawn from a uniform distribution over $\Theta_A^k$
+lying in the larger orbit is greater than the probability of it lying in the
+smaller orbit.
 \end{itemize}
 
 \noindent
@@ -433,7 +438,7 @@ size of any given orbit for even moderately large values of $k$. We can however
 trivially state that any orbit can at most be of size $|G|$, irrespective of
 $|\Theta_A^k|$. This is because every element in an orbit is ``reachable'' from
 every other element in the same orbit via some $g \in G$, i.e. $\forall T_A^k
-\in \Theta_A^k: \forall T_{A,1}^k, T_{A,2}^k \in T_A^{k,G}: \exists! g \in G:
+\in \Theta_A^k: \forall T_{A,1}^k, T_{A,2}^k \in T_A^{k,G}: \exists g \in G:
 g(T_{A,1}^k) = T_{A,2}^k$\footnote{It can additionally be shown that the size
 of every orbit must \textit{divide} $|G|$. In theory we could use this fact to
 find one or several possibilities for the orbit size distribution by looking
@@ -492,7 +497,7 @@ or orbit enumeration, especially for large values of $|G|$ such that our main
 concern with this algorithm is accuracy. A trivial observation we can make here
 is that, as with the execution time of bruteforce orbit enumeration, this
 metric should mainly depend on the orbit size distribution. This is because
-during local search we never ``leave'' a task mappings orbit, such that smaller
+during local search we never ``leave'' a task mapping's orbit, such that smaller
 orbits make it more likely that the representative returned is the correct one.
 Note that there may be pathological cases where local search never or almost
 never produces correct representatives for a given automorphism group and
