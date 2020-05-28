@@ -1,6 +1,1 @@
-out/*
-!out/.gitkeep
-pdf/*
-!pdf/.gitkeep
 resources
-tmp
