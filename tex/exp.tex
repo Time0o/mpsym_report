@@ -27,7 +27,7 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
 \begin{figure}
   \centering
-    \includegraphics[width=.4\textwidth]{resources/pdf/exynos.pdf}
+    \includeressource[width=.4\textwidth]{exynos.pdf}
   \caption{Exynos architecture with two different types of processing elements.
            Each processing element has its own L1 cache and all processing
            elements of the same type share a separate L2 cache. All processing
@@ -37,7 +37,7 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
 \begin{figure}
   \centering
-    \includegraphics[width=.45\textwidth]{resources/pdf/parallella.pdf}
+    \includeressource[width=.45\textwidth]{parallella.pdf}
   \caption{Parallelas Epiphany coprocessor architecture with 64 processing
            elements connected in a regular mesh fashion.}
   \label{fig:parallella}
@@ -45,7 +45,7 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
 \begin{figure}
   \centering
-    \includegraphics[width=.6\textwidth]{resources/pdf/haec.pdf}
+    \includeressource[width=.6\textwidth]{haec.pdf}
   \caption{HAEC architecture with four separate SoCs, each similar to
            Parallellas Epiphany coprocessor. The processing elements on one
            SoC can communicate with each other via optical links and with
@@ -56,7 +56,7 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
 \begin{figure}
   \centering
-    \includegraphics[width=\textwidth]{resources/pdf/kalray.pdf}
+    \includeressource[width=\textwidth]{kalray.pdf}
   \caption{Kalray MMPA-256 architecture made up of 16 identical clusters of 16
            processing elements fully connected via shared memory. The clusters
            themselves are connected in a 2D torus topology.}
@@ -169,8 +169,8 @@ any given generating set. For this reason, we omit this information altogether.
 
 \begin{figure}
   \centering
-  \input{resources/tex/gap_boxplot.tex}
-  \input{resources/tex/mpsym_boxplot.tex}
+  \inputressource{gap_boxplot.tex}
+  \inputressource{mpsym_boxplot.tex}
   \caption{BSGS construction execution times for the Exynos, HAEC and
            Parallella architectures. The value $w = 10$ was chosen for
            \texttt{mpsym}s implementation of the Random Schreier-Sims Algorithm.
@@ -295,13 +295,13 @@ and local search results are annotated with the achieved accuracy.
 
 \begin{figure}
   \centering
-  \input{resources/tex/exynos_lineplot.tex}
+  \inputressource{exynos_lineplot.tex}
   \caption{TMOR results for the Exynos architecture.}
   \label{fig:exynos_lineplot}
   %
   \vspace{1cm}
   %
-  \input{resources/tex/parallella_lineplot.tex}
+  \inputressource{parallella_lineplot.tex}
   \caption{TMOR results for the Parallella architecture.}
   \label{fig:parallella_lineplot}
 \end{figure}
@@ -335,7 +335,7 @@ iteration and achieves perfect accuracy as well.
 
 \begin{figure}
   \centering
-  \input{resources/tex/haec_lineplot.tex}
+  \inputressource{haec_lineplot.tex}
   \caption{TMOR results for the HAEC architecture. GAP data is extrapolated
            from execution times measured on just 100 random task mappings.
            Data series marked with ``*'' do \textbf{not} make use of
@@ -344,7 +344,7 @@ iteration and achieves perfect accuracy as well.
   %
   \vspace{1cm}
   %
-  \input{resources/tex/haec_histogram.tex}
+  \inputressource{haec_histogram.tex}
   \caption{Orbit size distribution for 100 random task mappings for the HAEC
            architecture, for different values of $k$. $n$ refers to the number
            of occurences of orbits of the corresponding size.}
@@ -367,7 +367,7 @@ with local search.
 \subsubsection{Kalray}
 
 \begin{figure}
-  \input{resources/tex/kalray_lineplot.tex}
+  \inputressource{kalray_lineplot.tex}
   \caption{Results for the Kalray architecture. Both data series make use
            of hierarchical decomposition and transitive group optimization.}
   \label{fig:kalray_lineplot}

@@ -1,4 +1,8 @@
-\input{tex/preamble.tex}
+\newcommand{\inputtex}[1]{\input{../tex/#1}}
+\newcommand{\inputressource}[1]{\input{../resources/tex/#1}}
+\newcommand{\includeressource}[2][]{\includegraphics[#1]{../resources/pdf/#2}}
+
+\inputtex{preamble.tex}
 
 \begin{document}
 
@@ -18,46 +22,46 @@
 \chapter{Abstract}
 \label{chap:abstract}
 
-\input{tex/abstract.tex}
+\inputtex{abstract.tex}
 
 \chapter{Motivation}
 \label{chap:motivation}
 
-\input{tex/motivation.tex}
+\inputtex{motivation.tex}
 
 \chapter{Theoretical and Computational Foundations}
 \label{chap:theo}
 
-\input{tex/theo.tex}
+\inputtex{theo.tex}
 
 \chapter{BSGS Construction}
 \label{chap:bsgs}
 
-\input{tex/bsgs.tex}
+\inputtex{bsgs.tex}
 
 \chapter{Architecture Graphs}
 \label{chap:ag}
 
-\input{tex/ag.tex}
+\inputtex{ag.tex}
 
 \chapter{The TMOR Problem}
 \label{chap:tmor}
 
-\input{tex/tmor.tex}
+\inputtex{tmor.tex}
 
 \chapter{Experimental Results}
 \label{chap:exp}
 
-\input{tex/exp.tex}
+\inputtex{exp.tex}
 
 \newpage
 
-\bibliography{tex/report}
+\bibliography{bibliography}
 \bibliographystyle{apalike}
 
 \appendix
 \chapter{\texttt{mpsym} Code Samples}
 
-\input{tex/code.tex}
+\inputtex{code.tex}
 
 \end{document}
