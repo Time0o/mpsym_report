@@ -1,0 +1,48 @@
+In this thesis we have demonstrated how we can simplify MPSoC task mapping by
+exploiting symmetries inherent in common MPSoC architectures. In doing so we
+have explored some fundamental computational group theory concepts, data
+structures and algorithms. We have seen how to describe abstract MPSoC
+architecture as graphs and how to extract a representation of their (partial)
+symmetries from this description. We have also introduced and formalized the
+TMOR problem and devised several algorithms to adress it. Experiments on real
+world MPSoC architectures have shown that these algorithms can work well in
+practice. However, they are as of now not suitable for use with partial
+symmetries due to shortcomings in the way we determine and represent partial
+automorphism inverse monoids.
+
+As we have seen in Chapter~\ref{chap:exp}, the overhead incurred by symmetry
+reduction is potentially very small, making it a sensible preprocessing step for
+most other task mapping algorithms. We have also seen that \texttt{mpsym} is
+able to outperform GAP when it comes to solving the TMOR problem. As such,
+development of \texttt{mpsym} has paid off.
+
+However, due to the high complexity of many of the algorithms underlying
+computational group theory, maintaining and extending \texttt{mpsym} is not
+possible without significant mathematical domain knowledge, especially when
+correctness and efficiency of these algorithms is of high importance.
+One alternative approach might thus be compiling GAP code to C in the spirit of
+Cython~\cite{cython} and so directly exposing its interface to a fast compiled
+language such as C++.
+
+As far as the current state of \texttt{mpsym} goes, it is mostly complete in
+regard to symmetries but lacking in regard to partial symmetries.
+
+For the former, it might be desireable to further improve BSGS construction via
+careful analysis of the success rate of the Random Schreier-Sims Algorithm as
+well as implementations of the Todd-Coxeter Schreier-Sims and Sims' ``Verify''
+Algorithm mentioned in
+Section~\ref{sec:bsgs_the_random_schreier_sims_algorithm}. In solving the TMOR
+problem, it could furthermore be fruitful to investigate advanced local search
+methods as outlined in Section~\ref{sec:tmor_algorithmic_approaches} and to
+speed up orbit enumeration beyond the simple fixed point algorithm currently
+employed by \texttt{mpym}.
+
+For the latter, a first important step would be faster discovery of a
+generating set for the partial automorphism inverse monoid of an architecture
+graph, improving over the relatively naive search tree pruning algorithm
+presented in Section~\ref{sec:ag_determining_partial_automorphisms} which does
+not scale to architectures with even a moderately large number of processing
+elements.  Additionally, for deterministically solving the TMOR problem we
+would also require a fast way of iterating through an inverse monoid or an
+altogether different approach whose complexity remains manageable even for
+larger sets of tasks.

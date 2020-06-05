@@ -125,9 +125,11 @@ Finding a generating set for the automorphism group of a graph is a
 well-studied problem in graph theory for which there exist efficient
 algorithms. The program \textit{nauty/Traces}~\cite{nauty} is able to determine
 such generating sets for vertex colored graphs. Since automorphism graphs can
-be totally colored we furthermore need to be able to transform any
-totally colored graph into a vertex colored graph with the same automorphism
-group, which is possible via the following theorem:
+be totally colored we furthermore need to be able to transform any totally
+colored graph into a vertex colored graph with the same automorphism group,
+which is possible via the following theorem\footnote{This construction is based
+on a description given in the nauty manual accessible at
+\url{http://pallini.di.uniroma1.it/Guide.html}.}:
 
 \begin{thm}{Reducing Totally Colored Architecture Graphs}
   Given a totally colored architecture graph $A = (P, C, \operatorname{col}_P,
@@ -136,15 +138,6 @@ group, which is possible via the following theorem:
   \begin{align*}
     |\operatorname{col}_P| &= \text{the number of distinct vertex colors of A} \\
     |\operatorname{col}_C| &= \text{the number of distinct edge colors of A}
-  \end{align*}
-  %
-  and
-  %
-  \begin{align*}
-    \operatorname{p}&: P' \rightarrow P,\ p \mapsto ((p - 1) \bmod |P|) + 1 \\
-    \operatorname{lvl}&: P' \rightarrow P,\ p \mapsto \floor*{\frac{p - 1}{|P|}} \\
-    \operatorname{bd}_i&: \mathbb{N}_+ \rightarrow \{0,1\},\
-    n \mapsto \text{the ith digit of the binary representation of } n
   \end{align*}
   %
   we construct a vertex colored architecture graph $A' = (P', C',
@@ -167,7 +160,18 @@ group, which is possible via the following theorem:
     \item $\forall c \in C': \operatorname{col}_C'(c) = 1$
   \end{itemize}
   %
-  $A$ and $A'$ then have the same automorphism group, a proof of which is beyond
+  where:
+  %
+  \begin{align*}
+    \operatorname{p}&: P' \rightarrow P,\ p \mapsto ((p - 1) \bmod |P|) + 1 \\
+    \operatorname{lvl}&: P' \rightarrow P,\ p \mapsto \floor*{\frac{p - 1}{|P|}} \\
+    \operatorname{bd}_i&: \mathbb{N}_+ \rightarrow \{0,1\},\
+    n \mapsto \text{the ith digit of the binary representation of } n
+  \end{align*}
+  %
+  we have
+  %
+  $A$ and $A'$ then have isomorphic automorphism group, a proof of which is beyond
   the scope of this thesis.
 \end{thm}
 
@@ -234,6 +238,28 @@ BSGS using the algorithms presented in Chapter~\ref{chap:bsgs}.
 \section{Automorphism Decomposition}
 \label{sec:ag_automorphism_decomposition}
 
+\begin{figure}[!htb]
+  \centering
+    \includeressource[width=.4\textwidth]{exynos.pdf}
+  \caption{Exynos architecture with two different types of processing elements.
+           Each processing element has its own L1 cache and all processing
+           elements of the same type share a separate L2 cache. All processing
+           elements can also communicate via shared RAM.}
+  \label{fig:exynos}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+    \includeressource[width=.6\textwidth]{haec.pdf}
+  \caption{HAEC architecture with four separate SoCs, each similar to
+           Parallellas Epiphany coprocessor. The processing elements on one
+           SoC can communicate with each other via optical links and with
+           \textit{all} processing elements on an adjacent SoC via a wireless
+           link.}
+  \label{fig:haec}
+\end{figure}
+
+\noindent
 The architecture graphs we are dealing with in practice are based on real world
 abstract MPSoC architectures. Many of these are either \textit{separable} or
 \textit{hierarchical} in nature, properties that we, as it turns out, can use
@@ -259,14 +285,16 @@ restricting that architecture graph to one of the two processor types, i.e.:
       \left<\{(5\ 6), (6\ 7), (6\ 8), (7\ 8)\}\right> \\
     &= \left<\{1\ 2), (2\ 3), (2\ 4), (3\ 4), (5\ 6), (6\ 7), (6\ 8), (7\ 8)\}\right>
 \end{align*}
-%
+
+\noindent
 Hierarchical architecture graphs on the other hand arise from abstract
 architecture graphs that are made up of interconnected identical ``clusters''
 of processing elements. Consider e.g. the \textit{HAEC} architecture shown in
 Figure~\ref{fig:haec}. We can model the corresponding architecture graph as a
 hypergraph according to Definition~\ref{defn:hypergraph}. Its automorphism
-group $G_{\mathrm{HAEC}}$ is then the wreath product of one clusters automorphism group and the
-autormophism group of the ``cluster graph'' itself, i.e.:
+group $G_{\mathrm{HAEC}}$ is then the wreath product of one cluster's
+automorphism group and the autormophism group of the ``cluster graph'' itself,
+i.e.:
 
 \begin{align*}
   &\begin{aligned}
@@ -282,7 +310,8 @@ and:
 \begin{equation*}
   G_{\mathrm{HAEC}} = G_{\mathrm{HAEC,proto}} \wr G_{\mathrm{HAEC,super}}
 \end{equation*}
-%
+
+\noindent
 We can either manually specify whether a given architecture graph is separable
 or hierarchical or automatically detect this property by using the algorithms
 presented in~\cite{Donaldson} which are able to deterministically discover
@@ -310,12 +339,12 @@ on), where we define extensions as follows:
 \begin{defn}{Extensions of a Partial Permutation}
   Given a partial permutation $s$ of a set $\Omega$, an extension of $s$ is
   another partial permutation $t$ with $\operatorname{dom}(t) =
-  \operatorname{dom}(s) \cup \{x \mid x \notin \operatorname{dom}(s), x \in
-  \Omega\}$ and $\operatorname{im}(t) = \operatorname{im}(s) \cup \{x \mid x
-  \notin \operatorname{im}(s), x \in \Omega\}$. We refer to all extensions of $s$
-  (of which there are $|\operatorname{dom}(s)|^2$) by $\operatorname{ext}(s)$ and
-  to the set resulting from a recursive application of $\operatorname{ext}$ as
-  $\operatorname{ext}^*(s)$.
+  \operatorname{dom}(s) \cup \{x\}$ for an $x \in \Omega \setminus
+  \operatorname{dom}(s)$ and $\operatorname{im}(t) = \operatorname{im}(s) \cup
+  \{x\}$ for an $x \in \Omega \setminus \operatorname{im}(s)$. We refer to all
+  extensions of $s$ (of which there are $|\operatorname{dom}(s)|^2$) by
+  $\operatorname{ext}(s)$ and to the set resulting from a recursive application
+  of $\operatorname{ext}$ as $\operatorname{ext}^*(s)$.
 \end{defn}
 
 \begin{exmp}{Extensions of a Partial Permutation}

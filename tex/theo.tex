@@ -599,7 +599,7 @@ special case of permutation groups acting on $\Omega_n$:
   product of $G$ and $H$, denoted $G \times H$ is a permutation group acting on
   $\Omega_{n_1 + n_2}$ such that $G \times H = \left<S_G \cup S_H'\right>$ where
   $S_H'$ is $S_H$ ``shifted upwards'' such that it acts on $\{n_1 + 1, \dots, n_1
-  + n2\}$.
+  + n_2\}$.
 \end{defn}
 %
 The direct product is somewhat analogous to the cartesian product of sets.
@@ -660,10 +660,14 @@ $G_{\mathrm{proto}}$ according to $E_{\mathrm{super}}$. More formally:
   \end{align*}
 \end{defn}
 %
-It can be shown that the automorphism group of such a hypergraph
-$G_{\mathrm{hyper}}$ is the wreath product the automorphism groups of
-$G_{\mathrm{proto}}$ and $G_{\mathrm{super}}$. We denote the wreath product of
-two permutation groups $G$ and $H$ by $G \wr H$.
+It can be shown that the wreath product the automorphism groups of
+$G_{\mathrm{proto}}$ and $G_{\mathrm{super}}$, denoted $G_{\mathrm{proto}} \wr
+G_{\mathrm{super}}$, is a subgroup of, and often identical to, the automorphism
+group of $G_{\mathrm{hyper}}$. The conditions under which identity holds are
+known but highly technical, refer to~\cite{hemminger}. We will for now always
+assume identity, at the risk of ``missing out on'' a number of automorphisms
+when decomposing automorphism groups into wreath products in
+Section~\ref{sec:ag_automorphism_decomposition}.
 
 \begin{exmp}{Wreath Product}
   Given two undirected graphs which have automorphism groups $G$ and $H$ from
@@ -1134,8 +1138,14 @@ permutation on a set:
 \end{defn}
 %
 As with ordinary permutations, we can define the composition of two partial
-permutations and the inverse of a partial permutation. Starting with the
-inverse we have:
+permutations and the inverse of a partial permutation:
+
+\begin{defn}{Partial Permutation Composition}
+  The composition of two partial permutations $s$ and $t$ is another partial
+  permutation $st: s^{-1}((\operatorname{im}(s) \cap \operatorname{dom}(t)))
+  \rightarrow t((\operatorname{im}(s) \cap \operatorname{dom}(t)))$ such that
+  $\forall x \in \operatorname{dom}(st): st(x) = s(t(x))$.
+\end{defn}
 
 \begin{defn}[label=defn:partial_permutation_inverse]{Partial Permutation Inverse}
   The inverse of a partial permutation $s$ is another partial permutation
@@ -1147,15 +1157,7 @@ inverse we have:
 \end{defn}
 %
 Note the difference between this and Definition~\ref{defn:permutation_inverse}.
-We can now define composition as follows:
 
-\begin{defn}{Partial Permutation Composition}
-  The composition of two partial permutations $s$ and $t$ is another partial
-  permutation $st: s^{-1}((\operatorname{im}(s) \cap \operatorname{dom}(t)))
-  \rightarrow t((\operatorname{im}(s) \cap \operatorname{dom}(t)))$ such that
-  $\forall x \in \operatorname{dom}(st): st(x) = s(t(x))$.
-\end{defn}
-%
 As with ordinary permutations, composition is associative but not
 commutative. Note that for any partial permutation $s$ it holds that
 $1_{\operatorname{dom}(s)} s = s 1_{\operatorname{im}(s)} = s$.  If
@@ -1191,9 +1193,9 @@ partial permutations.
 
 Similar to how we can represent all symmetries of a graph via permutation
 groups, we can represent all partial symmetries of a graph via a set of partial
-permutations closed under composition and inversion. However, these sets do, in
-general, not form groups but rather \textit{inverse semigroups/monoids} which
-share some of the properties of groups.
+permutations closed under composition and inversion. However, these sets do
+not, in general, form groups but rather \textit{inverse semigroups/monoids}
+which share some of the properties of groups.
 
 \subsection{Definition}
 
@@ -1226,8 +1228,7 @@ We can add a further restriction to this definition by noting that:
   assume that there are $s^{-1}_1, s^{-1}_2 \in S$ such that $s = s s^{-1}_1 s$,
   $s^{-1}_1 = s^{-1}_1 s s^{-1}_1$ and $s = s s^{-1}_2 s$, $s^{-1}_2 = s^{-1}_2 s
   s^{-1}_2$. Then we have $s^{-1}_1 = s^{-1}_1 1_{\operatorname{dom}(s)} =
-  s^{-1}_1 s s^{-1}_2 = 1_{\operatorname{im}(s)} s^{-1}_2 = s^{-1}_2$, a
-  contradiction, such that $s^{-1}$ must indeed be unique.
+  s^{-1}_1 s s^{-1}_2 = 1_{\operatorname{im}(s)} s^{-1}_2 = s^{-1}_2$.
 \end{proof}
 %
 Motivated by this we introduce \textit{inverse semigroups}:
@@ -1244,13 +1245,14 @@ $\forall s \in S: \exists s^{-1} \in S: s = s s^{-1} s,\ s^{-1} = s^{-1} s s^{-1
 \end{itemize}
 \end{defn}
 %
-Accordingly, $(S, \circ)$ forms what we will refer to
-as a \textit{partial permutation inverse semigroup}. We say that $(S, \circ)$
-acts on $\Omega = \bigcup_{s \in S} \operatorname{dom}(s)$ and if $S$
-additionally contains the element $1_{\Omega}$ we say that $(S, \circ)$ is an
-\textit{partial permutation inverse monoid}. The difference between inverse
-semigroups and inverse monoids is minor but for technical reasons we will
-from here on only work with the latter.
+Accordingly, $(S, \circ)$ forms what we will refer to as a \textit{partial
+permutation inverse semigroup}\footnote{There exist other semigroups than those
+made up of partial permutations but we will only focus on these particular ones
+in this thesis.}. We say that $(S, \circ)$ acts on $\Omega = \bigcup_{s \in S}
+\operatorname{dom}(s)$ and if $S$ additionally contains the element
+$1_{\Omega}$ we say that $(S, \circ)$ is an \textit{partial permutation inverse
+monoid}. The difference between inverse semigroups and inverse monoids is minor
+but for technical reasons we will from here on only work with the latter.
 
 It is easy to see that every inverse monoid is a semigroup and that every group
 is an inverse monoid. Figure~\ref{fig:group_semigroup_relationship} depicts
@@ -1299,54 +1301,16 @@ graph}:
     \item $E: \{(\alpha_i,\alpha_j) \mid \exists s \in S': s(\alpha_i) =
                 \alpha_j\}$\footnote{Note that $E$ is a multiset.}
 
-    \item $L: E \rightarrow M$ where $(\alpha_1,\alpha_j) \mapsto s \in S'
+    \item $L: E \rightarrow M$ where $(\alpha_i,\alpha_j) \mapsto s \in S'
           \implies s(\alpha_i) = \alpha_j$.
   \end{itemize}
 \end{defn}
 %
-Obtaining $\mathrm{OG}$ given a generating set $S$ is straightforward: We
+Obtaining an orbit graph given a generating set $S$ is straightforward: We
 simply start out with the root $\alpha_1$ and ``explore'' the rest of $OG$ in
-breadth first fashion, finding new nodes by taking the image of existing ones
+breadth-first fashion, finding new nodes by taking the image of existing ones
 under the elements of $S'$ as detailed by
 Algorithm~\ref{alg:orbit_graph_construction}.
-
-\begin{algorithm}
-  \caption{Construct orbit graph.}
-  \label{alg:orbit_graph_construction}
-  \begin{algorithmic}[1]
-    \Procedure{CONSTRUCT\_ORBIT\_GRAPH}{$M = \left<S\right>$}
-       \LineComment{$M$ acts on a set $\Omega$.}
-       \\
-       \State $S' \gets S \cup \{s^{-1} \mid s \in S\}$
-       \\
-       \State $V \gets \{\alpha_1 = \Omega\}$
-       \State $E \gets \{\}$
-       \\
-       \State $Q \gets \{\alpha_1\}$
-       \State $D \gets \{\}$
-       \\
-       \While{$Q \ne \emptyset$}
-         \State Choose an arbitrary $\alpha \in Q$
-         \\
-         \For{$s \in S'$}
-            \State $\alpha' = s(\alpha)$
-            \\
-            \State $E \gets E \cup \{(\alpha, \alpha')\}$
-            \State $L((\alpha, \alpha')) = s$
-            \\
-            \If{$\alpha' \notin D$}
-              \State $Q \gets Q \cup \{\alpha'\}$
-            \EndIf
-         \EndFor
-         \\
-         \State $Q \gets Q \setminus \{\alpha\}$
-         \State $D \gets D \cup \{\alpha\}$
-       \EndWhile
-       \\
-       \State \textbf{return} $\mathrm{OG} = (V, E, L)$
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
 
 \begin{exmp}[label=exmp:orbit_graph]{Orbit Graph}
   Consider the partial permutation inverse monoid $M$ acting on $\Omega =
@@ -1400,7 +1364,46 @@ Algorithm~\ref{alg:orbit_graph_construction}.
     \label{fig:orbit_graph}
   \end{figure}
 \end{exmp}
-%
+
+\begin{algorithm}
+  \caption{Construct orbit graph.}
+  \label{alg:orbit_graph_construction}
+  \begin{algorithmic}[1]
+    \Procedure{CONSTRUCT\_ORBIT\_GRAPH}{$M = \left<S\right>$}
+       \LineComment{$M$ acts on a set $\Omega$.}
+       \\
+       \State $S' \gets S \cup \{s^{-1} \mid s \in S\}$
+       \\
+       \State $V \gets \{\alpha_1 = \Omega\}$
+       \State $E \gets \{\}$
+       \\
+       \State $Q \gets \{\alpha_1\}$
+       \State $D \gets \{\}$
+       \\
+       \While{$Q \ne \emptyset$}
+         \State Choose an arbitrary $\alpha \in Q$
+         \\
+         \For{$s \in S'$}
+            \State $\alpha' = s(\alpha)$
+            \\
+            \State $E \gets E \cup \{(\alpha, \alpha')\}$
+            \State $L((\alpha, \alpha')) = s$
+            \\
+            \If{$\alpha' \notin D$}
+              \State $Q \gets Q \cup \{\alpha'\}$
+            \EndIf
+         \EndFor
+         \\
+         \State $Q \gets Q \setminus \{\alpha\}$
+         \State $D \gets D \cup \{\alpha\}$
+       \EndWhile
+       \\
+       \State \textbf{return} $\mathrm{OG} = (V, E, L)$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\noindent
 To perform membership testing we also require a \textit{spanning tree} for
 and the \textit{strongly connected components} (s.c.c.s) of $\mathrm{OG}$.
 
@@ -1561,9 +1564,9 @@ the same s.c.c. of $\mathrm{OG}$. It also holds that:
 \begin{lemma}[label=lemma:partial_permutation_inverse_monoid_order]{}
   Let $M$ be a partial permutation inverse monoid, $\mathrm{OG}$ an orbit graph
   for $M$ and $C$ an s.c.c. of $\mathrm{OG}$ with representative $\alpha_r$, then
-  there are exactly $|C|^2 \cdot |M_{\alpha_r}|$ $s \in M$ with
-  $\operatorname{dom}(s), \operatorname{im}(s) \in C$. Notice that this implies
-  that $|M_{\alpha_r}|$ is independent of our choice of $\alpha_r$.
+  there are exactly $|C|^2 \cdot |M_{\alpha_r}|$ partial permutations $s \in M$
+  with $\operatorname{dom}(s), \operatorname{im}(s) \in C$. Notice that this
+  implies that $|M_{\alpha_r}|$ is independent of our choice of $\alpha_r$.
 \end{lemma}
 %
 Proving this is non-trivial, refer to~\cite{Mitchell}. It immediately follows

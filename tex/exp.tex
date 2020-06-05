@@ -27,31 +27,10 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 
 \begin{figure}
   \centering
-    \includeressource[width=.4\textwidth]{exynos.pdf}
-  \caption{Exynos architecture with two different types of processing elements.
-           Each processing element has its own L1 cache and all processing
-           elements of the same type share a separate L2 cache. All processing
-           elements can also communicate via shared RAM.}
-  \label{fig:exynos}
-\end{figure}
-
-\begin{figure}
-  \centering
     \includeressource[width=.45\textwidth]{parallella.pdf}
   \caption{Parallela's Epiphany coprocessor architecture with 64 processing
            elements connected in a regular mesh fashion.}
   \label{fig:parallella}
-\end{figure}
-
-\begin{figure}
-  \centering
-    \includeressource[width=.6\textwidth]{haec.pdf}
-  \caption{HAEC architecture with four separate SoCs, each similar to
-           Parallellas Epiphany coprocessor. The processing elements on one
-           SoC can communicate with each other via optical links and with
-           \textit{all} processing elements on an adjacent SoC via a wireless
-           link.}
-  \label{fig:haec}
 \end{figure}
 
 \begin{figure}
@@ -67,7 +46,8 @@ architecture $X$ by $A_X$ and the automorphism group of $A_X$ by $G_X$.
 \item The
 \textit{Exynos}\footnote{\hyperlink{https://www.samsung.com/semiconductor/minisite/exynos/}{https://www.samsung.com/semiconductor/minisite/exynos/}}
 MPSoC developed by Samsung, with \textit{Octa Big-Little} multi core
-configuration. See Figure~\ref{fig:exynos}.
+configuration. We have already encountered this architecture in
+Section~\ref{sec:ag_automorphism_decomposition}, see Figure~\ref{fig:exynos}.
 
 \item A 16 by 16 processing element regular mesh based on the
 \textit{Epiphany} \cite{Olofsson} coprocessor of the
@@ -75,8 +55,9 @@ configuration. See Figure~\ref{fig:exynos}.
 board. See Figure~\ref{fig:parallella}.
 
 \item The \textit{HAEC}~\cite{HAEC} architecture, consisting of several
-optical-link-based MPSoCs connected to each other by wireless links. See
-Figure~\ref{fig:haec}.
+optical-link-based MPSoCs connected to each other by wireless links. We have
+already encountered this architecture in
+Section~\ref{sec:ag_automorphism_decomposition}, see Figure~\ref{fig:haec}.
 
 \item The \textit{Kalray
 MMPA-256}\footnote{\hyperlink{https://www.kalrayinc.com/}{https://www.kalrayinc.com/}}

@@ -1,40 +1,26 @@
+An important problem pertaining to MPSoCs is that of intelligently mapping
+(i.e.  assigning) computational tasks to processing elements, often at runtime.
+
+Whether some mapping is comparatively better than another usually depends on
+application specific optimality criteria that can only be evaluated by use of
+computationally expensive simulation. Thus there is a need to reduce the
+potentially very large mapping search space.
+
 This thesis concerns itself with what we refer to as \textit{symmetry
-reduction} of multi-processor systems-on-chips, short \textit{MPSoC}s.  This
-technique is based on previous work presented in~\cite{Goens}. The
-contributions of this thesis are threefold: it elaborates on the theoretical
-foundations underlying~\cite{Goens} in greater detail, it describes some
-further algorithmic improvements and it presents experimental results obtained
-by use of \texttt{mpsym}~\cite{mpsym}, a C++ program written from the ground up
+reduction}, a technique that achieves this search space reduction by exploiting
+symmetries inherent in many MPSoC architecutures and which can be used in
+conjunction with existing methods that heuristically traverse the search space.
+
+For this purpose we make use of well-established, as well as some recent state
+of the art methods originated by researchers in the field of
+\textit{computational group theory (CGT)}, a branch of computational
+mathematics that concerns itself with the representation and analysis of many
+of the algebraic structures underlying group theory.
+%
+We evaluate symmetry reduction results achieved by use of
+\texttt{mpsym}~\cite{mpsym}, a framework written from the ground up
 specifically to address symmetry reduction.
-
-We will make use of well established, as well as some recent state of the art
-methods originated by researchers in the field of \textit{computational group
-theory}, a branch of computational mathematics that concerns itself with the
-representation and analysis of many of the algebraic structures underlying
-group theory. Refer to e.g.~\cite{Holt} for a comprehensive overview.
-
-We begin by informally describing the problem this thesis addresses in
-Section~\ref{sec:mot_problem_statement} and elaborate on what we mean by
-symmetry reduction in Section~\ref{sec:mot_symmetry_reduction}.
 %
-Chapter~\ref{chap:theo} then introduces some necessary fundamentals of
-computational group theory in an accessible manner, focussing on the
-representation of permutation groups and partial permutation
-inverse monoids, algebraic structures we will use to capture the symmetries
-inherent in MPSoC architectures.
-%
-In Chapter~\ref{chap:bsgs} we separately discuss an especially important topic
-touched on in Chapter~\ref{chap:theo} in greater detail: construction of a so
-called \textit{base and strong generating set} for a given permutation group.
-%
-In Chapter~\ref{chap:ag} we then outline how to describe common MPSoC
-architectures mathematically and how to algorithmically transform these
-descriptions into the symmetry capturing algebraic structures introduced in
-Chapter~\ref{chap:theo}.
-%
-Equipped with these fundamentals, we then revisit symmetry reduction in
-Chapter~\ref{chap:tmor} were we discuss it in a more formal manner and present
-several algorithms to address it.
-%
-Finally, in Chapter~\ref{chap:exp} we present some experimental results
-obtained by use of \texttt{mpsym}.
+We demonstrate that \texttt{mpsym} is fast, especially for architectures that
+are hierarchical in nature, and that it outperforms comparable general purpose
+CGT frameworks like GAP~\cite{GAP4}.

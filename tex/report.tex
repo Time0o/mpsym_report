@@ -6,11 +6,36 @@
 
 \begin{document}
 
-\title{Faster MPSoC Task Mapping via Symmetry Reduction}
-\date{26.05.20}
-\author{Timo Nicolai}
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
 
-\maketitle
+       \Huge
+       \textbf{Faster MPSoC Task Mapping via Symmetry Reduction}
+
+       \vspace{0.5cm}
+
+       \LARGE
+       Seminar Paper
+
+       \vspace{1.5cm}
+
+       \textbf{Timo Nicolai}
+
+       \vfill
+
+       Advisors: Prof. Jeronimo Castrillon$^*$, Andrés Goens$^*$
+
+       \vspace{0.8cm}
+
+       \Large
+       $^*$Chair for Compiler Construction, cfaed, TU Dresden
+
+       \vspace{0.8cm}
+
+       05.06.20
+   \end{center}
+\end{titlepage}
 
 \tableofcontents
 
@@ -19,12 +44,12 @@
 \thispagestyle{empty}
 \setcounter{page}{1}
 
-\chapter{Abstract}
+\chapter*{Abstract}
 \label{chap:abstract}
 
 \inputtex{abstract.tex}
 
-\chapter{Motivation}
+\chapter{Introduction}
 \label{chap:mot}
 
 \inputtex{mot.tex}
@@ -54,14 +79,15 @@
 
 \inputtex{exp.tex}
 
+\chapter{Conclusion}
+\label{chap:conc}
+
+\inputtex{conc.tex}
+
 \newpage
 
 \bibliography{bibliography}
 \bibliographystyle{apalike}
-
-\appendix
-\listoffigures
-\listofalgorithms
 
 \appendix
 \chapter{\texttt{mpsym} Code Samples}

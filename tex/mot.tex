@@ -1,3 +1,32 @@
+\section{Structure}
+\label{sec:mot_structure}
+
+We begin by informally describing the problem this thesis addresses in
+Section~\ref{sec:mot_problem_statement} and elaborate on what we mean by
+symmetry reduction in Section~\ref{sec:mot_symmetry_reduction}.
+%
+Chapter~\ref{chap:theo} then introduces some necessary fundamentals of
+computational group theory in an accessible manner, focussing on the
+representation of permutation groups and partial permutation
+inverse monoids, algebraic structures we will use to capture the symmetries
+inherent in MPSoC architectures.
+%
+In Chapter~\ref{chap:bsgs} we separately discuss an especially important topic
+touched on in Chapter~\ref{chap:theo} in greater detail: construction of a so
+called \textit{base and strong generating set} for a given permutation group.
+%
+In Chapter~\ref{chap:ag} we then outline how to describe common MPSoC
+architectures mathematically and how to algorithmically transform these
+descriptions into the symmetry capturing algebraic structures introduced in
+Chapter~\ref{chap:theo}.
+%
+Equipped with these fundamentals, we then revisit symmetry reduction in
+Chapter~\ref{chap:tmor} were we discuss it in a more formal manner and present
+several algorithms to address it.
+%
+Finally, in Chapter~\ref{chap:exp} we present some experimental results
+obtained by use of \texttt{mpsym}.
+
 \section{Problem Statement}
 \label{sec:mot_problem_statement}
 
@@ -8,7 +37,7 @@ embedded applications in domains like multimedia or telecommunication where
 their specific makeup can meet specialized demands like high throughput, low
 energy consumption or adaptability thereof.
 
-An important problem pertaining to MPSoC is that of intelligently mapping (i.e.
+An important problem pertaining to MPSoCs is that of intelligently mapping (i.e.
 assigning) computational tasks to processing elements, often at runtime.  These
 computational tasks can be both independent or interoperating programs with
 potentially very different hardware requirements.
@@ -34,10 +63,10 @@ For simplicity we will assume that each task can run on any processing element
 and every processing element can run at most one task.
 
 Which way of mapping these $k$ tasks to the $m \cdot n$ processing elements is
-``the best'' is dependent on underlying optimality criteria which can vary from
+``the best'' depends on underlying optimality criteria which can vary from
 application to application. These could e.g. be highest possible throughput,
 lowest energy consumption, a trade-off between the two or some even more
-complicated application specific criteria.
+complicated application-specific criteria.
 %
 Unfortunately, for any such criteria we cannot work with an abstract MPSoC
 architecture alone because we need to consider ``real-world'' processing
@@ -60,14 +89,16 @@ evaluated ones via a genetic algorithm.
 \label{sec:mot_symmetry_reduction}
 
 The aim of this thesis is to describe and evaluate a very different method of
-addressing large task mapping search spaces that does \textit{not} rely on
-simulation results at all. Instead, it ``collapses'' the task mapping search
-space via \textit{symmetry reduction}, a technique based on the observation
-that some task mappings are necessarily equivalent \textit{by symmetry} and
-thus do not need to be simulated separately. A set of ``equivalent'' task
-mappings in this context is a set of task mappings that will necessarily
-exhibit the same runtime behaviour (apart from minor differences due to e.g.
-non-identical behaviour of equivalent hardware components elements).
+addressing large task mapping search spaces which ``collapses'' the task
+mapping search space via \textit{symmetry reduction}, a technique based on the
+observation that some task mappings are necessarily equivalent \textit{by
+symmetry} and thus do not need to be simulated separately. This idea is based
+on previous work presented in~\cite{Goens}.
+%
+A set of ``equivalent'' task mappings in this context is a set of task mappings
+that will necessarily exhibit the same runtime behaviour (apart from minor
+differences due to e.g.  non-identical behaviour of equivalent hardware
+components elements).
 
 \begin{figure}
   \centering
@@ -109,15 +140,17 @@ On the other hand, task mappings (a) and (c) \textit{are} equivalent since this
 communication structure is preserved.
 
 A more tricky question is whether task mappings (a) and (c) are equivalent to
-task mapping (d). Technically this is not the case because for task
-mapping (d) some additional communication paths exist between the tasks. For
-instance, task one and two can communicate over two paths made up of three
-consecutive communication channels as opposed to just one, as indicated in red.
-However, in practice it would most likely make sense to treat task mapping (a),
-(b) and (d) as equivalent. We say that that task mappings (a) and (b) are
-equivalent \textit{under symmetry} and both of them are equivalent to task
-mapping (d) \textit{under partial symmetry}. We will formalize these concepts
-in Chapter~\ref{chap:tmor}.
+task mapping (d). Technically this is not the case because for task mapping (d)
+some additional communication paths exist between the tasks. For instance, task
+one and two can communicate over two paths made up of three consecutive
+communication channels as opposed to just one, as indicated in
+red\footnote{Whether both these communication channels are actually valid of
+course depends on the concrete routing algorithm employed but we will not
+consider this here.}.  However, in practice it would most likely make sense to
+treat task mapping (a), (b) and (d) as equivalent. We say that that task
+mappings (a) and (b) are equivalent \textit{under symmetry} and both of them
+are equivalent to task mapping (d) \textit{under partial symmetry}. We will
+formalize these concepts later.
 
 Symmetry reduction makes use of these task mapping equivalencies by
 partitioning the task mapping search space into sets of tasks that are

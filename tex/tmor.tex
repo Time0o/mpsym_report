@@ -133,6 +133,11 @@ represented as permutations as follows:
                      &\text{otherwise}
                  \end{cases}
   \end{equation*}
+  %
+  From now on we assume that if $G$ is the automorphism group of $A$, then
+  $\forall T_A^k \in \Theta_A^k: \forall g \in G: g(T_A^k) \in \Theta_A^k$
+  (alternatively: we assume that $\Theta_A^k$ is a $G$-set) such that the
+  following discussions about task mapping orbits make sense.
 \end{defn}
 
 \begin{exmp}{Task Mapping Permutation}
@@ -165,7 +170,8 @@ into orbits and then reduce these orbits to their canonical representatives.
       (\forall 1 \leq j < i: t_j = \widetilde{t}_j) \land (t_i < \widetilde{t}_i)
   \end{equation*}
   %
-  We also write $T_A^k < \widetilde{T}_A^k$.
+  This type of ordering is called \textit{lexicographical}. We also write
+  $T_A^k < \widetilde{T}_A^k$.
 \end{defn}
 
 \begin{exmp}{Task Mapping Ordering}
@@ -403,8 +409,8 @@ $k$, assuming that iterating through $G$ is more computationally expensive than
 finding $g(T_{A}^k)$.
 
 At worst, bruteforce orbit iteration only adds a single element to $T_A^{k,G}$
-in every iteration and its runtime complexity is thus $O(\left<S\right> (1 + 2
-+ \dots + (|T_A^{k,G}| - 1))) = O(\left<S\right> |T_A^{k,G}|^2)$. If
+in every iteration and its runtime complexity is thus $O(|S| (1 + 2
++ \dots + (|T_A^{k,G}| - 1))) = O(|S| |T_A^{k,G}|^2)$. If
 $\Theta_{A}^k$ is partitioned into relatively few but large orbits, finding
 representatives via orbit enumeration is potentially prohibitively expensive.
 
