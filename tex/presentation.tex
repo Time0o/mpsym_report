@@ -54,7 +54,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Symmetry Reduction I: Idea}
+  \frametitle{Symmetry Reduction}
 
   \begin{itemize}
     \setlength\itemsep{.25cm}
@@ -75,7 +75,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Symmetry Reduction II: (Partial) Symmetries}
+  \frametitle{Symmetry Reduction}
 
   \begin{figure}
     \centering
@@ -128,29 +128,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Representing Symmetries I: Automorphisms}
-
-  \begin{definition}<1->
-    Given two graphs $G = (V_G, E_G)$ and $H = (V_H, E_H)$, an
-    \textbf{isomorphism} from $G$ to $H$ is a bijection $i: V_G \rightarrow V_H$
-    with:
-    $$
-      \{x,y\} \in E_G \Leftrightarrow \{i(x),i(y)\} \in E_H
-    $$
-  \end{definition}
-
-  \begin{definition}<2->
-    An \textbf{automorphism} of a graph $G$ is an isomorphism from a graph $G$
-    to iself.
-  \end{definition}
-
-  \begin{definition}<3->
-    A \textbf{permutation} is a bijection from a set $\Omega$ to itself.
-  \end{definition}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Symmetries I: Automorphisms}
+  \frametitle{Representing Symmetries:\\Automorphism Groups}
 
   \only<1>{
     \begin{figure}
@@ -264,38 +242,9 @@
   }
 \end{frame}
 
+% TODO: use picture instead
 \begin{frame}
-  \frametitle{Representing Symmetries II: Automorphism Groups}
-
-  \begin{itemize}
-    \item Set of \textit{all} automorphisms:
-      \begin{itemize}
-        \item<2-> Closed under \textit{composition} and \textit{inversion}
-        \item<3-> Representable by \textit{permutation group (PG)}
-      \end{itemize}
-  \end{itemize}
-
-  \begin{definition}<4->
-    A \textbf{group} is a tuple $(G, \circ: G \times G \rightarrow G)$
-    satisfying:
-    %
-    \begin{itemize}
-      \item Associativity
-      \item Existence of (unique) identity
-      \item Existence of (unique) inverse
-    \end{itemize}
-  \end{definition}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-
-    \item<5-> Instead of $\circ(g_1, g_2)$ we write $g_1 g_2$
-    \item<6-> We denote the identity by $1$ and inverses by $^{-1}$
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Interlude: Group Orbits}
+  \frametitle{Group Orbits}
 
   \begin{definition}
     We define the \textbf{orbit} of some $x \in \Omega$ under $G$ as:
@@ -307,22 +256,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Representing Partial Symmetries I:\\Partial Automorphisms}
-
-  \begin{definition}<1->
-    A \textbf{partial automorphism} of a graph $G$ is an isomorphism from one
-    \textit{vertex-induced subgraph} of $G$ to another.
-  \end{definition}
-
-  \begin{definition}<2->
-    A \textbf{partial permutation} $m$ is a bijection from a set
-    $\operatorname{dom}(m) \subseteq \Omega$ to another set $\operatorname{im}(m)
-    \subseteq \Omega$.
-  \end{definition}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Partial Symmetries I:\\Partial Automorphisms}
+  \frametitle{Representing Partial Symmetries:\\Partial Automorphism Inverse Monoids}
 
   \begin{figure}
     \centering
@@ -368,59 +302,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Representing Partial Symmetries II:\\Partial Automorphism Inverse Monoids}
-
-  \begin{itemize}
-    \item<1-> Set of \textit{all} partial automorphisms:
-      \begin{itemize}
-        \item<2-> Closed under composition and inversion
-        \item<3-> \textbf{Not} representable by permutation group
-        \item<4-> Representable by \textit{partial permutation inverse monoid (PPIM)}
-      \end{itemize}
-  \end{itemize}
-
-  \begin{definition}<5->
-    An \textbf{inverse monoid} is a tuple $(M, \circ: M \times M \rightarrow M)$
-    satisfying:
-
-    \begin{itemize}
-      \item Associativity
-      \item Existence of (universal) identity
-      \item Existence of (unique) inverse
-    \end{itemize}
-  \end{definition}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-
-    \item<6-> No unique identity, e.g.: $1_{\operatorname{dom}(m)} m =
-                                         m 1_{\operatorname{im}(m)} = m$
-    \item<7-> Inverse defined differently: $m = m m^{-1} m$, $m^{-1} = m^{-1} m m^{-1}$
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Partial Symmetries II:\\Partial Automorphism Inverse Monoids}
-
-  \begin{figure}
-    \centering
-    \scalebox{.8}{
-    \begin{tikzpicture}
-    \node [draw,fit={(-4,-4) (4,4)},%
-         label={[label distance=-.6cm]above:{Semigroups}}] {};
-    \node [draw,fit={(-3,-3) (3,3)},%
-         label={[label distance=-.6cm]above:{Inverse Semigroups}}] {};
-    \node [draw,fit={(-2,-2) (2,2)},%
-         label={[label distance=-.6cm]above:{Inverse Monoids}}] {};
-    \node [draw,fit={(-1,-1) (1,1)},%
-         label={[label distance=-.6cm]above:{Groups}}] {};
-    \end{tikzpicture}
-    }
-  \end{figure}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Interlude: Extracting (Partial) Symmetries}
+  \frametitle{Extracting (Partial) Symmetries}
 
   \begin{itemize}
     \setlength\itemsep{.25cm}
@@ -442,7 +324,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Interlude: Extracting (Partial) Symmetries}
+  \frametitle{Extracting (Partial) Symmetries}
 
   \only<1>{
     \begin{figure}
@@ -597,130 +479,9 @@
   }
 \end{frame}
 
+% TODO: use picture instead
 \begin{frame}
-  \frametitle{Representing Symmetries III: BSGS Representation}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-    %
-    \item<1-> Permutation group representation should allow us to:
-      \begin{itemize}
-        \item<2-> Iterate over all $g \in G$
-        \item<3-> Test whether $g \in G$
-      \end{itemize}
-    \item<4-> Generating set:
-      \begin{itemize}
-        \item<5-> Enumeration only via inefficient fixed-point algorithm
-        \item<6-> Membership testing only via complete enumeration
-      \end{itemize}
-    \item<7-> \textit{Base and strong generating set (BSGS)}:
-      \begin{itemize}
-        \item<8-> Enumeration in $O(|G|)$
-        \item<9-> Membership testing in $O(|B|)$
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Symmetries III: BSGS Representation}
-
-  \begin{definition}<1->
-    A \textbf{BSGS} for $G$ is a tuple $(B = (\beta_1, \dots, \beta_k), S)$
-    satisfying:
-    %
-    \begin{itemize}
-      \item $B$ is not \textit{stabilized} by any $g \in G$
-      \item $G = \langle S \rangle$ and $G^{(i)} = \langle S^{(i)} \rangle =
-            \langle S \cap G^{(i)} \rangle$
-    \end{itemize}
-  \end{definition}
-
-  \vspace{.25cm}
-
-  \visible<2>{
-    \begin{itemize}
-      \item \textit{Basic stabilizers} $G^{(i)}$:
-        \begin{itemize}
-          \item $G^{(i)} = \text{the subgroup of $G$ that stabilizes $\beta_1,
-                \dots \beta_{i-1}$}$
-          \item $1 = G^{(k+1)} \leq G^{(k)} \leq \dots \leq G^{(1)} = G$
-        \end{itemize}
-    \end{itemize}
-  }
-\end{frame}
-
-% TODO: more explanations?
-\begin{frame}
-  \frametitle{Representing Symmetries III: BSGS Representation}
-
-  % TODO: ugly
-  \begin{theorem}
-    Every $g \in G$ can be (uniquely) represented as:
-    %
-    \begin{equation*}
-      g = u_k u_{k-1} \cdots u_1,\ u_i \in U^{(i)}
-    \end{equation*}
-  \end{theorem}
-
-  \vspace{.25cm}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-
-    \item<2-> \textit{Transversals} $U^{(i)}$:
-      \begin{itemize}
-        \item $U^{(i)} = \{\text{some $u \in G$ with $u(\beta_i) = x$} \mid
-                           x \in \beta_i^{G^{(i)}}\}$
-      \end{itemize}
-    \item<3-> Enumeration:
-      \begin{itemize}
-        \item $|G| = \prod_{i=1}^k |U^{(i)}|$
-      \end{itemize}
-    \item<4-> Membership testing:
-      \begin{itemize}
-        \item Compose $g \in G$ with $u_1^{-1}, \dots u_k^{-1}$ until we arrive at $1$
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Symmetries III: BSGS Representation}
-
-  \begin{itemize}
-    \item<1-> Obtain BSGS from generating set:
-
-    \begin{itemize}
-      \setlength\itemsep{.25cm}
-
-      \item<2-> \textit{Schreier-Sims} algorithm\\
-            $\Rightarrow$ Polynomial in $\operatorname{deg}(G)$
-      \item<3-> \textit{Random Schreier-Sims} algorithm\\
-            $\Rightarrow$ Fast Monte Carlo algorithm
-      \item<4-> \textit{Solvable BSGS} algorithm\\
-            $\Rightarrow$ Only works for certain groups
-      \item<5-> \textit{Todd-Coxeter Schreier-Sims} and \textit{Sims Verify} algorithms\\
-            $\Rightarrow$ Fast BSGS verification and correction
-    \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Representing Partial Symmetries III: Orbit Graphs}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-
-    \item<1-> Cannot use BSGS representation for PPIMs
-    \item<2-> \textit{Orbit graphs} as an alternative, see~\cite{Mitchell}:
-      \begin{itemize}
-        \item<3-> Allow for membership testing
-        \item<4-> Do \textbf{not} directly allow for enumeration
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{The TMOR Problem I: Mapping Orbits}
+  \frametitle{The TMOR Problem I:\\Mapping Orbits}
 
   \begin{itemize}
     \setlength\itemsep{.25cm}
@@ -735,7 +496,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{The TMOR Problem I: Mapping Orbits}
+  \frametitle{The TMOR Problem I:\\Mapping Orbits}
 
   \begin{itemize}
     \setlength\itemsep{.25cm}
@@ -832,43 +593,6 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
-
-  \begin{itemize}
-    \setlength\itemsep{.25cm}
-
-    \item<1-> Which approach to choose?
-      \begin{itemize}
-        \setlength\itemsep{.25cm}
-
-        \item<2-> $\mathrm{TMOR\_ORBIT}$\\
-              $\Rightarrow O(|S| (1 + 2 + \dots + (|\mathrm{orbit}| - 1))) =
-               O(|S| \cdot |G|^2)$
-        \item<3-> $\mathrm{TMOR\_ITERATE}$\\
-              $\Rightarrow O(|G|)$
-        \item<4-> $\mathrm{TMOR\_LOCAL\_SEARCH}$\\
-              $\Rightarrow$ extremely fast but possibly inaccurate
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
-
-  \begin{itemize}
-    \item<1-> Other considerations:
-      \begin{itemize}
-        \setlength\itemsep{.25cm}
-
-        \item<2-> $|G|$ typically very large
-        \item<3-> Orbit size upper-bounded by $|G|$
-        \item<4-> Average orbit size non-decreasing with $k$
-        \item<5-> Problem trivial if $G$ \textit{transitive}
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
   \frametitle{The TMOR Problem III:\\Optimization by Decomposition}
 
   \begin{itemize}
@@ -962,7 +686,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results I: Architectures}
+  \frametitle{Experimental Results I:\\Architectures}
 
   \begin{itemize}
     \item Experiments run for:
@@ -980,12 +704,10 @@
     \onslide<3>\centerline{\includeressource[width=.5\textwidth]{HAEC.pdf}}
     \onslide<4>\centerline{\includeressource[width=.8\textwidth]{Kalray.pdf}}
   \end{overprint}
-
-  % TODO
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: BSGS Construction}
+  \frametitle{Experimental Results II:\\BSGS Construction}
 
   \begin{figure}
     \centering
@@ -994,7 +716,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: BSGS Construction}
+  \frametitle{Experimental Results II:\\BSGS Construction}
 
   \begin{itemize}
     \item<1-> Finding BSGS for $G_{\mathrm{Kalray}}$ too expensive:
@@ -1010,37 +732,37 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \scalebox{.7}{\inputressource{exynos_lineplot.tex}}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \scalebox{.7}{\inputressource{parallella_lineplot.tex}}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \scalebox{.7}{\inputressource{haec_lineplot.tex}}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \scalebox{.7}{\inputressource{haec_histogram.tex}}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \scalebox{.7}{\inputressource{kalray_lineplot.tex}}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Experimental Results II: TMOR}
+  \frametitle{Experimental Results II:\\TMOR}
 
   \begin{itemize}
     \item Lessons learned:
