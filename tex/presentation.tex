@@ -1,13 +1,26 @@
 \documentclass{beamer}
 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{soul}
 \usepackage{subcaption}
 \usepackage{tikz}
-\usetikzlibrary{arrows,petri,topaths}
+\usetikzlibrary{arrows,fit,petri,topaths}
 \usepackage{tkz-berge}
 
+% theme
 \usetheme{ccc}
 
+% colors
+\definecolor{tcolorboxGray}{RGB}{243,243,243}
+\definecolor{LightGray}{RGB}{230,230,230}
+\definecolor{MediumGray}{RGB}{179,179,179}
+\definecolor{DarkGray}{RGB}{128,128,128}
+\definecolor{LightRed}{RGB}{255,213,213}
+\definecolor{MediumRed}{RGB}{255,128,128}
+
 \newcommand{\includeressource}[2][]{\includegraphics[#1]{../resources/pdf/#2}}
+\newcommand{\inputressource}[1]{\input{../resources/tex/#1}}
 
 \begin{document}
 
@@ -41,10 +54,10 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Symmetry Reduction}
+  \frametitle{Symmetry Reduction I: Idea}
 
   \begin{itemize}
-    \setlength\itemsep{.5cm}
+    \setlength\itemsep{.25cm}
     %
     \item<1-> One approach:
       \begin{itemize}
@@ -53,15 +66,16 @@
       \end{itemize}
     \item<3-> Another approach:
       \begin{itemize}
-        \item<3-> Partition search space into mappings equivalent \textit{by symmetry}
-        \item<4-> Only work with representative of every equivalence class
+        \item<3-> Partition search space \textit{by (partial) symmetry}
+        \item<4-> Only work with representative of each partition
         \item<5-> $\rightarrow$ ``Collapse'' search space
        \end{itemize}
+    \item<6-> Both approaches can be combined!
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Symmetry Reduction}
+  \frametitle{Symmetry Reduction II: (Partial) Symmetries}
 
   \begin{figure}
     \centering
@@ -81,7 +95,7 @@
       \includeressource[width=\textwidth]{regular_mesh_4_4_mapping2.pdf}
     \end{subfigure} \\
     %
-    \vspace{.5cm}
+    \vspace*{.5cm}
     %
     \begin{subfigure}{.3\textwidth}
       \includeressource[width=\textwidth]{regular_mesh_4_4_mapping4.pdf}
@@ -104,6 +118,8 @@
   \frametitle{Inspirations and Contributions}
 
   \begin{itemize}
+    \setlength\itemsep{.25cm}
+
     \item<1-> Original idea: \cite{Goens}
     \item<2-> Theoretical foundations: \cite{Holt} and \cite{Mitchell}
     \item<3-> Important optimizations: \cite{Donaldson}
@@ -112,7 +128,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Representing Symmetries I: Graph Automorphisms}
+  \frametitle{Representing Symmetries I: Automorphisms}
 
   \begin{definition}<1->
     Given two graphs $G = (V_G, E_G)$ and $H = (V_H, E_H)$, an
@@ -124,11 +140,12 @@
   \end{definition}
 
   \begin{definition}<2->
-    An \textbf{automorphism} is an isomorphism from a graph $G$ to iself.
+    An \textbf{automorphism} of a graph $G$ is an isomorphism from a graph $G$
+    to iself.
   \end{definition}
 
   \begin{definition}<3->
-    A \textbf{permutation} is a bijection from a set to itself.
+    A \textbf{permutation} is a bijection from a set $\Omega$ to itself.
   \end{definition}
 \end{frame}
 
@@ -138,6 +155,7 @@
   \only<1>{
     \begin{figure}
       \centering
+      %
       \begin{tikzpicture}
         % vertices
         \Vertex[x=0,y=0,L=$1$]{1}
@@ -156,8 +174,10 @@
   \only<2>{
     \begin{figure}
       \centering
+      %
       \begin{subfigure}{.2\paperwidth}
         \centering
+        %
         \begin{tikzpicture}[baseline=(current bounding box.center)]
           % vertices
           \Vertex[x=0,y=0,L=$1$]{1}
@@ -197,9 +217,7 @@
         \end{tikzpicture}
       \end{subfigure}
       %
-      \Large$\Rightarrow$\makebox[.2\paperwidth]{$\ (1\ 2\ 3\ 4)$\hfill}\normalsize
-      %
-      \\
+      \Large$\Rightarrow$\normalsize\makebox[.2\paperwidth]{$\ (1\ 2\ 3\ 4)$\hfill}
       %
       \begin{subfigure}{.2\paperwidth}
         \centering
@@ -226,6 +244,7 @@
       %
       \begin{subfigure}{.2\paperwidth}
         \centering
+        %
         \begin{tikzpicture}[baseline=(current bounding box.center)]
           % vertices
           \Vertex[x=0,y=0,L=$1$]{1}
@@ -240,7 +259,7 @@
         \end{tikzpicture}
       \end{subfigure}
       %
-      \Large$\Rightarrow$\makebox[.2\paperwidth]{$\ (2\ 4)$\hfill}\normalsize
+      \Large$\Rightarrow$\normalsize\makebox[.2\paperwidth]{$\ (2\ 4)$\hfill}
     \end{figure}
   }
 \end{frame}
@@ -249,45 +268,355 @@
   \frametitle{Representing Symmetries II: Automorphism Groups}
 
   \begin{itemize}
-    \item Set of \textit{all} graph automorphisms:
+    \item Set of \textit{all} automorphisms:
       \begin{itemize}
         \item<2-> Closed under \textit{composition} and \textit{inversion}
-        \item<3-> Representable by \textit{permutation group}
+        \item<3-> Representable by \textit{permutation group (PG)}
       \end{itemize}
   \end{itemize}
 
   \begin{definition}<4->
-    A \textbf{group} is a tuple $(G, \circ: G \times G \rightarrow G)$ which
-    satisfies:
+    A \textbf{group} is a tuple $(G, \circ: G \times G \rightarrow G)$
+    satisfying:
     %
     \begin{itemize}
-      \item associativity
-      \item existence of (unique) identity
-      \item existence of (unique) inverse
+      \item Associativity
+      \item Existence of (unique) identity
+      \item Existence of (unique) inverse
     \end{itemize}
   \end{definition}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<5-> Instead of $\circ(g_1, g_2)$ we write $g_1 g_2$
+    \item<6-> We denote the identity by $1$ and inverses by $^{-1}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interlude: Group Orbits}
+
+  \begin{definition}
+    We define the \textbf{orbit} of some $x \in \Omega$ under $G$ as:
+    %
+    \begin{equation*}
+      x^G = \{g(x) \mid g \in G\}
+    \end{equation*}
+  \end{definition}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Partial Symmetries I:\\Partial Automorphisms}
+
+  \begin{definition}<1->
+    A \textbf{partial automorphism} of a graph $G$ is an isomorphism from one
+    \textit{vertex-induced subgraph} of $G$ to another.
+  \end{definition}
+
+  \begin{definition}<2->
+    A \textbf{partial permutation} $m$ is a bijection from a set
+    $\operatorname{dom}(m) \subseteq \Omega$ to another set $\operatorname{im}(m)
+    \subseteq \Omega$.
+  \end{definition}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Partial Symmetries I:\\Partial Automorphisms}
+
+  \begin{figure}
+    \centering
+    %
+    \begin{subfigure}{.2\paperwidth}
+      \centering
+      %
+      \begin{tikzpicture}[baseline=(current bounding box.center)]
+        % vertices
+        \Vertex[x=0,y=0,L=$1$]{1}
+        \Vertex[x=1.5,y=0,L=$2$]{2}
+        \Vertex[x=3,y=0,L=$3$]{3}
+        \Vertex[x=0,y=-1.5,L=$4$]{4}
+        \Vertex[x=1.5,y=-1.5,L=$5$]{5}
+        \Vertex[x=3,y=-1.5,L=$6$]{6}
+        \Vertex[x=0,y=-3,L=$7$]{7}
+        \Vertex[x=1.5,y=-3,L=$8$]{8}
+        \Vertex[x=3,y=-3,L=$9$]{9}
+        % horizontal edges
+        \Edge(1)(2)
+        \Edge(2)(3)
+        \Edge(4)(5)
+        \Edge(5)(6)
+        \Edge(7)(8)
+        \Edge(8)(9)
+        % vertical edges
+        \Edge(1)(4)
+        \Edge(2)(5)
+        \Edge(3)(6)
+        \Edge(4)(7)
+        \Edge(5)(8)
+        \Edge(6)(9)
+        % arrows
+        \tikzstyle{EdgeStyle}=[post, bend angle=45, bend left, style=thick]
+        \Edge[color=red](1)(2)
+        \Edge[color=red](4)(5)
+        \Edge[color=red](7)(8)
+      \end{tikzpicture}
+    \end{subfigure}
+    %
+    \qquad\qquad\Large$\Rightarrow$\normalsize$\ [1\ 2][4\ 5][7\ 8]$
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Partial Symmetries II:\\Partial Automorphism Inverse Monoids}
+
+  \begin{itemize}
+    \item<1-> Set of \textit{all} partial automorphisms:
+      \begin{itemize}
+        \item<2-> Closed under composition and inversion
+        \item<3-> \textbf{Not} representable by permutation group
+        \item<4-> Representable by \textit{partial permutation inverse monoid (PPIM)}
+      \end{itemize}
+  \end{itemize}
+
+  \begin{definition}<5->
+    An \textbf{inverse monoid} is a tuple $(M, \circ: M \times M \rightarrow M)$
+    satisfying:
+
+    \begin{itemize}
+      \item Associativity
+      \item Existence of (universal) identity
+      \item Existence of (unique) inverse
+    \end{itemize}
+  \end{definition}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<6-> No unique identity, e.g.: $1_{\operatorname{dom}(m)} m =
+                                         m 1_{\operatorname{im}(m)} = m$
+    \item<7-> Inverse defined differently: $m = m m^{-1} m$, $m^{-1} = m^{-1} m m^{-1}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Partial Symmetries II:\\Partial Automorphism Inverse Monoids}
+
+  \begin{figure}
+    \centering
+    \scalebox{.8}{
+    \begin{tikzpicture}
+    \node [draw,fit={(-4,-4) (4,4)},%
+         label={[label distance=-.6cm]above:{Semigroups}}] {};
+    \node [draw,fit={(-3,-3) (3,3)},%
+         label={[label distance=-.6cm]above:{Inverse Semigroups}}] {};
+    \node [draw,fit={(-2,-2) (2,2)},%
+         label={[label distance=-.6cm]above:{Inverse Monoids}}] {};
+    \node [draw,fit={(-1,-1) (1,1)},%
+         label={[label distance=-.6cm]above:{Groups}}] {};
+    \end{tikzpicture}
+    }
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interlude: Extracting (Partial) Symmetries}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Describe MPSoC architecture as \textbf{architecture graph}
+
+    \item<2-> Determine PG generating set:
+      \begin{itemize}
+        \item<3-> Transform into ``equivalent'' vertex colored graph
+        \item<4-> Use \textit{nauty}~\cite{nauty}
+      \end{itemize}
+    \item<5-> Determine PPIM generating set:
+      \begin{itemize}
+        \item<6-> Construct search tree of possible generators
+        \item<7-> Prune certain subtrees
+        \item<8-> Not efficient enough in practice
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interlude: Extracting (Partial) Symmetries}
+
+  \only<1>{
+    \begin{figure}
+      \centering
+      %
+      \begin{subfigure}{.55\textwidth}
+        \centering
+        \includeressource[width=.8\textwidth]{simple_arch.pdf}
+      \end{subfigure}
+      %
+      \Large$\Rightarrow$\normalsize
+      %
+      \begin{subfigure}{.3\textwidth}
+        \centering
+        %
+        \begin{tikzpicture}
+          % vertices
+          \Vertex[x=0,y=0,L=$1$]{1}
+          \Vertex[x=2,y=0,L=$2$]{2}
+          {\renewcommand{\VertexLightFillColor}{LightGray}
+           \Vertex[x=2,y=-2,L=$3$]{3}
+           \Vertex[x=0,y=-2,L=$4$]{4}}
+          % L2 edges
+          \Edge[label=L2](1)(2)
+          \Edge[label=L2](1)(3)
+          \Edge[label=L2](1)(4)
+          \Edge[label=L2](2)(3)
+          \Edge[label=L2](2)(4)
+          \Edge[label=L2](3)(4)
+          % L1 edges
+          \tikzstyle{EdgeStyle}=[bend angle=45, bend left]
+          \Edge[label=L1](1)(2)
+          \Edge[label=L1](3)(4)
+        \end{tikzpicture}
+      \end{subfigure}
+    \end{figure}
+  }
+
+  \only<2>{
+    \begin{figure}
+      \centering
+      %
+      \begin{subfigure}{.3\textwidth}
+        \centering
+        %
+        \begin{tikzpicture}
+          % vertices
+          \Vertex[x=0,y=0,L=$1$]{1}
+          \Vertex[x=2,y=0,L=$2$]{2}
+          {\renewcommand{\VertexLightFillColor}{LightGray}
+           \Vertex[x=2,y=-2,L=$3$]{3}
+           \Vertex[x=0,y=-2,L=$4$]{4}}
+          % L2 edges
+          \Edge[label=L2](1)(2)
+          \Edge[label=L2](1)(3)
+          \Edge[label=L2](1)(4)
+          \Edge[label=L2](2)(3)
+          \Edge[label=L2](2)(4)
+          \Edge[label=L2](3)(4)
+          % L1 edges
+          \tikzstyle{EdgeStyle}=[bend angle=45, bend left]
+          \Edge[label=L1](1)(2)
+          \Edge[label=L1](3)(4)
+        \end{tikzpicture}
+      \end{subfigure}
+      %
+      \Large$\Rightarrow$\normalsize
+      %
+      \begin{subfigure}{.55\textwidth}
+        \centering
+        %
+        \begin{tikzpicture}
+          % vertices
+          \Vertex[x=0,y=-1.5,L=$1$]{1}
+          \Vertex[x=1.5,y=-1.5,L=$2$]{2}
+          {\renewcommand{\VertexLightFillColor}{LightGray}
+            \Vertex[x=3,y=-1.5,L=$3$]{3}
+            \Vertex[x=4.5,y=-1.5,L=$4$]{4}}
+          {\renewcommand{\VertexLightFillColor}{MediumGray}
+            \Vertex[x=0,y=0, L=$5$]{5}
+            \Vertex[x=1.5,y=0, L=$6$]{6}}
+          {\renewcommand{\VertexLightFillColor}{DarkGray}
+            \Vertex[x=3,y=0, L=$7$]{7}
+            \Vertex[x=4.5,y=0, L=$8$]{8}}
+          % straight edges
+          \Edge(1)(5)
+          \Edge(2)(6)
+          \Edge(3)(7)
+          \Edge(4)(8)
+          % dummy edge
+          \tikzstyle{EdgeStyle}=[bend right]
+          \Edge[color=white](1)(4)
+          % bent edges
+          \tikzstyle{EdgeStyle}=[bend right]
+          \Edge(1)(2)
+          \Edge(3)(4)
+          \tikzstyle{EdgeStyle}=[bend left]
+          \Edge(5)(6)
+          \Edge(5)(7)
+          \Edge(5)(8)
+          \Edge(6)(7)
+          \Edge(6)(8)
+          \Edge(7)(8)
+        \end{tikzpicture}
+      \end{subfigure}
+    \end{figure}
+  }
+
+  \only<3->{
+    \begin{figure}
+      \centering
+      %
+      \begin{subfigure}{.4\paperwidth}
+        \begin{tikzpicture}
+          % vertices
+          \Vertex[x=0,y=-1.5,L=$1$]{1}
+          \Vertex[x=1.5,y=-1.5,L=$2$]{2}
+          {\renewcommand{\VertexLightFillColor}{LightGray}
+            \Vertex[x=3,y=-1.5,L=$3$]{3}
+            \Vertex[x=4.5,y=-1.5,L=$4$]{4}}
+          {\renewcommand{\VertexLightFillColor}{MediumGray}
+            \Vertex[x=0,y=0, L=$5$]{5}
+            \Vertex[x=1.5,y=0, L=$6$]{6}}
+          {\renewcommand{\VertexLightFillColor}{DarkGray}
+            \Vertex[x=3,y=0, L=$7$]{7}
+            \Vertex[x=4.5,y=0, L=$8$]{8}}
+          % straight edges
+          \Edge(1)(5)
+          \Edge(2)(6)
+          \Edge(3)(7)
+          \Edge(4)(8)
+          % dummy edge
+          \tikzstyle{EdgeStyle}=[bend right]
+          \Edge[color=white](1)(4)
+          % bent edges
+          \tikzstyle{EdgeStyle}=[bend right]
+          \Edge(1)(2)
+          \Edge(3)(4)
+          \tikzstyle{EdgeStyle}=[bend left]
+          \Edge(5)(6)
+          \Edge(5)(7)
+          \Edge(5)(8)
+          \Edge(6)(7)
+          \Edge(6)(8)
+          \Edge(7)(8)
+        \end{tikzpicture}
+      \end{subfigure}
+      %
+      \Large$\Rightarrow$\normalsize\makebox[.3\paperwidth]{%
+        $\ \{(1\ 2)$\st{$(5\ 6)$}$,(3\ 4)$\st{$(7\ 8)$}$\}$\hfill}
+    \end{figure}
+  }
 \end{frame}
 
 \begin{frame}
   \frametitle{Representing Symmetries III: BSGS Representation}
 
   \begin{itemize}
-    \setlength\itemsep{.5cm}
+    \setlength\itemsep{.25cm}
     %
     \item<1-> Permutation group representation should allow us to:
       \begin{itemize}
-        \item Iterate over all $g \in G$
-        \item Test whether $g \in G$
+        \item<2-> Iterate over all $g \in G$
+        \item<3-> Test whether $g \in G$
       \end{itemize}
-    \item<2-> Generating set $S$ with $G = \langle S \rangle$:
+    \item<4-> Generating set:
       \begin{itemize}
-        \item Enumeration only via inefficient fixed-point algorithm
-        \item Membership testing only via complete enumeration
+        \item<5-> Enumeration only via inefficient fixed-point algorithm
+        \item<6-> Membership testing only via complete enumeration
       \end{itemize}
-    \item<3-> \textit{Base and strong generating set (BSGS)}:
+    \item<7-> \textit{Base and strong generating set (BSGS)}:
       \begin{itemize}
-        \item Enumeration in $O(|G|)$
-        \item Membership testing in $O(|B|)$
+        \item<8-> Enumeration in $O(|G|)$
+        \item<9-> Membership testing in $O(|B|)$
       \end{itemize}
   \end{itemize}
 \end{frame}
@@ -295,12 +624,9 @@
 \begin{frame}
   \frametitle{Representing Symmetries III: BSGS Representation}
 
-  For a permutation group $G$:
-
-  \vspace{.5cm}
-
   \begin{definition}<1->
-    A \textbf{BSGS} is a tuple $(B = (\beta_1, \dots, \beta_k), S)$ which satisfies:
+    A \textbf{BSGS} for $G$ is a tuple $(B = (\beta_1, \dots, \beta_k), S)$
+    satisfying:
     %
     \begin{itemize}
       \item $B$ is not \textit{stabilized} by any $g \in G$
@@ -309,18 +635,452 @@
     \end{itemize}
   \end{definition}
 
-  \vspace{.5cm}
+  \vspace{.25cm}
 
   \visible<2>{
-    $G^{(i)}$ are the \textit{basic stabilizers} with:
-    $$
-      1 = G^{(k+1)} \leq G^{(k)} \leq \dots \leq G^{(1)} = G
-    $$
+    \begin{itemize}
+      \item \textit{Basic stabilizers} $G^{(i)}$:
+        \begin{itemize}
+          \item $G^{(i)} = \text{the subgroup of $G$ that stabilizes $\beta_1,
+                \dots \beta_{i-1}$}$
+          \item $1 = G^{(k+1)} \leq G^{(k)} \leq \dots \leq G^{(1)} = G$
+        \end{itemize}
+    \end{itemize}
+  }
+\end{frame}
+
+% TODO: more explanations?
+\begin{frame}
+  \frametitle{Representing Symmetries III: BSGS Representation}
+
+  % TODO: ugly
+  \begin{theorem}
+    Every $g \in G$ can be (uniquely) represented as:
+    %
+    \begin{equation*}
+      g = u_k u_{k-1} \cdots u_1,\ u_i \in U^{(i)}
+    \end{equation*}
+  \end{theorem}
+
+  \vspace{.25cm}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<2-> \textit{Transversals} $U^{(i)}$:
+      \begin{itemize}
+        \item $U^{(i)} = \{\text{some $u \in G$ with $u(\beta_i) = x$} \mid
+                           x \in \beta_i^{G^{(i)}}\}$
+      \end{itemize}
+    \item<3-> Enumeration:
+      \begin{itemize}
+        \item $|G| = \prod_{i=1}^k |U^{(i)}|$
+      \end{itemize}
+    \item<4-> Membership testing:
+      \begin{itemize}
+        \item Compose $g \in G$ with $u_1^{-1}, \dots u_k^{-1}$ until we arrive at $1$
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Symmetries III: BSGS Representation}
+
+  \begin{itemize}
+    \item<1-> Obtain BSGS from generating set:
+
+    \begin{itemize}
+      \setlength\itemsep{.25cm}
+
+      \item<2-> \textit{Schreier-Sims} algorithm\\
+            $\Rightarrow$ Polynomial in $\operatorname{deg}(G)$
+      \item<3-> \textit{Random Schreier-Sims} algorithm\\
+            $\Rightarrow$ Fast Monte Carlo algorithm
+      \item<4-> \textit{Solvable BSGS} algorithm\\
+            $\Rightarrow$ Only works for certain groups
+      \item<5-> \textit{Todd-Coxeter Schreier-Sims} and \textit{Sims Verify} algorithms\\
+            $\Rightarrow$ Fast BSGS verification and correction
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Representing Partial Symmetries III: Orbit Graphs}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Cannot use BSGS representation for PPIMs
+    \item<2-> \textit{Orbit graphs} as an alternative, see~\cite{Mitchell}:
+      \begin{itemize}
+        \item<3-> Allow for membership testing
+        \item<4-> Do \textbf{not} directly allow for enumeration
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem I: Mapping Orbits}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Represent mappings by $k$-tuples $t = (t_1, t_2, \dots, t_k)$
+    \item<2-> Define space of all admissible $k$-mappings $\Theta_k$
+    \item<3-> Define $t^G = \{((g(t_1), g(t_2), \dots, g(t_k))
+          \mid g \in G\}$
+    \item<4-> Orbits \textbf{partition} $\Theta_k$
+    \item<5-> Reduce $\Theta_k$ to set of \textit{canonical orbit representatives}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem I: Mapping Orbits}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Determining all orbits usually too costly
+    \item<2-> Iteratively determine and hash canonical representatives
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \visible<3>{
+    \begin{algorithmic}[1]
+    \Procedure{ORBIT\_IDENTIFIER}{$t$, $\mathrm{reprs}$}
+      \State $\mathrm{repr} \gets \mathrm{TMOR}(t)$
+      \\
+      \If{$\mathrm{repr} \notin \mathrm{reprs}$}
+        \State Append $\mathrm{repr}$ to $\mathrm{reprs}$
+      \EndIf
+      \\
+      \State \textbf{return} index of $\mathrm{repr}$ in $\mathrm{reprs}$
+    \EndProcedure
+    \end{algorithmic}
   }
 \end{frame}
 
 \begin{frame}
+  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
+
+  \begin{itemize}
+    \item First approach: explicit orbit enumeration
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{algorithmic}[1]
+  \Procedure{TMOR\_ORBIT}{$t$, $G = \langle S \rangle$}
+    \State $\mathrm{orbit} \gets \{\}$
+    \\
+    \While{$\mathrm{orbit}$ is changing}
+      \For{$t' \in \mathrm{orbit}$, $g$ in $S$}
+        \State $\mathrm{orbit} \gets \mathrm{orbit} \cup \{g(t')\}$
+      \EndFor
+    \EndWhile
+    \\
+    \State \textbf{return} $\min(\mathrm{orbit})$
+  \EndProcedure
+  \end{algorithmic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
+
+  \begin{itemize}
+    \item Second approach: group enumeration
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{algorithmic}[1]
+  \Procedure{TMOR\_ITERATE}{$t$, $G$}
+    \State $\mathrm{repr} \gets t$
+    \\
+    \For{$g \in G$}
+      \If{$g(t) < \mathrm{repr}$}
+        \State $\mathrm{repr} \gets g(t)$
+      \EndIf
+    \EndFor
+    \\
+    \State \textbf{return} $\mathrm{repr}$
+  \EndProcedure
+  \end{algorithmic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
+
+  \begin{itemize}
+    \item Third approach: local search
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{algorithmic}[1]
+  \Procedure{TMOR\_LOCAL\_SEARCH}{$t$, $G = \langle S \rangle$}
+    \State $\mathrm{repr} \gets t$
+    \\
+    \While{$\mathrm{repr}$ is changing}
+      \State $\mathrm{repr} \gets \min(\{g(\mathrm{repr}) \mid g \in S\})$
+    \EndWhile
+    \\
+    \State \textbf{return} $\mathrm{repr}$
+  \EndProcedure
+  \end{algorithmic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Which approach to choose?
+      \begin{itemize}
+        \setlength\itemsep{.25cm}
+
+        \item<2-> $\mathrm{TMOR\_ORBIT}$\\
+              $\Rightarrow O(|S| (1 + 2 + \dots + (|\mathrm{orbit}| - 1))) =
+               O(|S| \cdot |G|^2)$
+        \item<3-> $\mathrm{TMOR\_ITERATE}$\\
+              $\Rightarrow O(|G|)$
+        \item<4-> $\mathrm{TMOR\_LOCAL\_SEARCH}$\\
+              $\Rightarrow$ extremely fast but possibly inaccurate
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem II:\\Finding Canonical Orbit Representatives}
+
+  \begin{itemize}
+    \item<1-> Other considerations:
+      \begin{itemize}
+        \setlength\itemsep{.25cm}
+
+        \item<2-> $|G|$ typically very large
+        \item<3-> Orbit size upper-bounded by $|G|$
+        \item<4-> Average orbit size non-decreasing with $k$
+        \item<5-> Problem trivial if $G$ \textit{transitive}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem III:\\Optimization by Decomposition}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Many architecture graphs are \textit{separable} or
+          \textit{hierarchical}
+    \item<2-> Separable: any heterogeneous archictecture
+    \item<3-> Hierarchical: \textbf<3>{HAEC}\visible<4->{, \textbf{Kalray}}
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \visible<3->{
+    \begin{figure}
+      \centering
+      \begin{overprint}
+        \onslide<3>\centerline{\includeressource[width=.4\textwidth]{haec.pdf}}
+        \onslide<4>\centerline{\includeressource[width=.8\textwidth]{kalray.pdf}}
+      \end{overprint}
+    \end{figure}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem III:\\Optimization by Decomposition}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Automorphism groups of such graphs decompose into:
+      \begin{itemize}
+        \setlength\itemsep{.25cm}
+
+        \item<2-> Separable architectures: \textit{direct products}\\
+              $G = G_1 \times G_2$, $|G| = |G_1| \cdot |G_2| \cdots |G_n|$
+        \item<3-> Hierarchical architectures: \textit{wreath products}\\
+              $G = G_{\mathrm{proto}} \wr G_{\mathrm{super}}$,
+              $|G| = |G_{\mathrm{proto}}|^{\operatorname{deg}(G_{\mathrm{super}})}
+               \cdot |G_{\mathrm{super}}|$
+      \end{itemize}
+    \item<4-> Decomposition specified by user or detected automatically
+    \item<5-> Solve TMOR problem separately for components
+    \item<6-> Idea based on~\cite{Donaldson}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem III:\\Optimization by Decomposition}
+
+  \begin{itemize}
+    \item For separable architectures:
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{algorithmic}[1]
+    \Procedure{TMOR\_SEPARABLE}{$t$, $G_1, \dots, G_n$}
+      \State $\mathrm{repr} \gets t$
+      \\
+      \For{$i = 1 \dots n$}
+        \State $\mathrm{repr} \gets \mathrm{TMOR}(\mathrm{repr}, G_i)$
+      \EndFor
+      \\
+      \State \textbf{return} $\mathrm{repr}$
+    \EndProcedure
+  \end{algorithmic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The TMOR Problem III:\\Optimization by Decomposition}
+
+  \begin{itemize}
+    \item For hierarchical architecture:
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{algorithmic}[1]
+  \Procedure{TMOR\_HIERARCHICAL}{$t$, $G_{\mathrm{proto}}$, $G_{\mathrm{super}}$}
+    \State $\mathrm{repr} \gets t$
+    \\
+    \For{$i = 1 \dots \operatorname{deg}(G_{\operatorname{super}})$}
+      \State $\mathrm{repr} \gets \mathrm{TMOR}(\mathrm{repr},
+                                                \sigma_i(G_{\mathrm{proto}}))$
+    \EndFor
+    \\
+    \State \textbf{return} $\mathrm{TMOR}(\mathrm{repr}, \sigma(G_{\mathrm{super}}))$
+  \EndProcedure
+  \end{algorithmic}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results I: Architectures}
+
+  \begin{itemize}
+    \item Experiments run for:
+          \textbf<1>{Exynos}
+          \visible<2->{, \textbf<2>{Parallella}}
+          \visible<3->{, \textbf<3>{HAEC}}
+          \visible<4->{, \textbf<4>{Kalray}}
+  \end{itemize}
+
+  \vspace{.25cm}
+
+  \begin{overprint}
+    \onslide<1>\centerline{\includeressource[width=.4\textwidth]{exynos.pdf}}
+    \onslide<2>\centerline{\includeressource[width=.4\textwidth]{parallella.pdf}}
+    \onslide<3>\centerline{\includeressource[width=.5\textwidth]{HAEC.pdf}}
+    \onslide<4>\centerline{\includeressource[width=.8\textwidth]{Kalray.pdf}}
+  \end{overprint}
+
+  % TODO
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: BSGS Construction}
+
+  \begin{figure}
+    \centering
+    \scalebox{.7}{\inputressource{bsgs_boxplot.tex}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: BSGS Construction}
+
+  \begin{itemize}
+    \item<1-> Finding BSGS for $G_{\mathrm{Kalray}}$ too expensive:
+      \begin{itemize}
+        \setlength\itemsep{.25cm}
+
+        \item<2-> Only construct BSGS for $G_{\mathrm{Kalray,proto}}$,
+                  $G_{\mathrm{Kalray,super}}$
+        \item<3-> Detect symmetric automorphism group
+        \item<4-> Improvement from several minutes to $\approx 10^{-1}s$
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \scalebox{.7}{\inputressource{exynos_lineplot.tex}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \scalebox{.7}{\inputressource{parallella_lineplot.tex}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \scalebox{.7}{\inputressource{haec_lineplot.tex}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \scalebox{.7}{\inputressource{haec_histogram.tex}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \scalebox{.7}{\inputressource{kalray_lineplot.tex}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental Results II: TMOR}
+
+  \begin{itemize}
+    \item Lessons learned:
+      \begin{itemize}
+        \setlength\itemsep{.25cm}
+
+        \item<1-> Performance of orbit enumeration depends strongly on $k$
+        \item<2-> Local search can be fast and accurate
+        \item<3-> Decomposition can be very powerful
+        \item<4-> \texttt{mpsym} outperforms GAP
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The End}
+
+  \begin{center}
+    Thank you for your attention!
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Further Research}
+
+  \begin{itemize}
+    \setlength\itemsep{.25cm}
+
+    \item<1-> Faster BSGS Construction
+    \item<2-> Heuristic local search
+    \item<3-> Partial Automorphism discovery
+    \item<4-> Inverse Monoid enumeration
+    \item<5-> Compiling GAP to C
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
   \frametitle{References}
+
+  \tiny
 
   \bibliography{bibliography}
   \bibliographystyle{apalike}
